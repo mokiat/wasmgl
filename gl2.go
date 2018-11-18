@@ -16,6 +16,8 @@ func createGL2(htmlCanvas js.Value) (*GL2, error) {
 	gl := &GL2{
 		context: context,
 	}
+	gl.DepthTest = context.Get("DEPTH_TEST").Int()
+	gl.CullFace = context.Get("CULL_FACE").Int()
 	gl.ArrayBuffer = context.Get("ARRAY_BUFFER").Int()
 	gl.ElementArrayBuffer = context.Get("ELEMENT_ARRAY_BUFFER").Int()
 	gl.StaticDraw = context.Get("STATIC_DRAW").Int()
@@ -57,6 +59,8 @@ func createGL2(htmlCanvas js.Value) (*GL2, error) {
 type GL2 struct {
 	context js.Value
 
+	DepthTest               int
+	CullFace                int
 	ArrayBuffer             int
 	ElementArrayBuffer      int
 	StaticDraw              int
@@ -103,6 +107,10 @@ func (gl *GL2) ClearColor(r, g, b, a float64) {
 
 func (gl *GL2) Clear(mask int) {
 	gl.context.Call("clear", mask)
+}
+
+func (gl *GL2) Enable(cap int) {
+	gl.context.Call("enable", cap)
 }
 
 func (gl *GL2) DepthFunc(fn int) {
