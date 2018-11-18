@@ -65,8 +65,14 @@ type Window struct {
 	htmlCanvas js.Value
 }
 
-// InitGL2 creates a new GL2 instance for the given Window or returns an error on
-// failure.
+// InitGL creates a new GL (WebGL1) instance for the given Window or returns
+// an error on failure.
+func (w *Window) InitGL() (*GL, error) {
+	return createGL(w.htmlCanvas)
+}
+
+// InitGL2 creates a new GL2 (WebGL2) instance for the given Window or returns
+// an error on failure.
 func (w *Window) InitGL2() (*GL2, error) {
 	return createGL2(w.htmlCanvas)
 }
