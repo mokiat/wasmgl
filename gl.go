@@ -42,7 +42,9 @@ func (gl *GL) BindTexture(target int, texture Texture) {
 
 func (gl *GL) BufferData(target int, data []byte, usage int) {
 	// TODO: Handle nil data
-	gl.context.Call("bufferData", target, js.TypedArrayOf(data), usage)
+	typedArray := js.TypedArrayOf(data)
+	defer typedArray.Release()
+	gl.context.Call("bufferData", target, typedArray, usage)
 }
 
 func (gl *GL) Clear(mask int) {
@@ -136,7 +138,9 @@ func (gl *GL) ShaderSource(shader Shader, source string) {
 }
 
 func (gl *GL) TexImage2D(target, level, internalFormat, width, height, border, format, dtype int, data []byte) {
-	gl.context.Call("texImage2D", target, level, internalFormat, width, height, border, format, dtype, js.TypedArrayOf(data))
+	typedArray := js.TypedArrayOf(data)
+	defer typedArray.Release()
+	gl.context.Call("texImage2D", target, level, internalFormat, width, height, border, format, dtype, typedArray)
 }
 
 func (gl *GL) TexParameteri(target, pname, param int) {
@@ -148,7 +152,9 @@ func (gl *GL) Uniform1i(location UniformLocation, x int) {
 }
 
 func (gl *GL) UniformMatrix4fv(location UniformLocation, transpose bool, data []float32) {
-	gl.context.Call("uniformMatrix4fv", location.location, transpose, js.TypedArrayOf(data))
+	typedArray := js.TypedArrayOf(data)
+	defer typedArray.Release()
+	gl.context.Call("uniformMatrix4fv", location.location, transpose, typedArray)
 }
 
 func (gl *GL) UseProgram(program Program) {
