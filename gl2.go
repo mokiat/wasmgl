@@ -12,15 +12,13 @@ func createGL2(htmlCanvas js.Value) (*GL2, error) {
 	if context == js.Undefined() {
 		return nil, fmt.Errorf("could not acquire webgl2 context")
 	}
-
-	gl := &GL2{
+	return &GL2{
 		GL: GL{
 			glConstants: createGLConstants(context),
 			context:     context,
 		},
 		gl2Constants: createGL2Constants(context),
-	}
-	return gl, nil
+	}, nil
 }
 
 // GL2 exposes WebGL2 API calls and constants.
@@ -51,10 +49,10 @@ func (a VertexArray) Valid() bool {
 
 func createGL2Constants(context js.Value) gl2Constants {
 	return gl2Constants{
-		TextureWrapR: context.Get("TEXTURE_WRAP_R").Int(),
+		TEXTURE_WRAP_R: context.Get("TEXTURE_WRAP_R").Int(),
 	}
 }
 
 type gl2Constants struct {
-	TextureWrapR int
+	TEXTURE_WRAP_R int
 }
