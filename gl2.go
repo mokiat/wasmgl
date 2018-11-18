@@ -245,6 +245,9 @@ func (gl *GL2) VertexAttribPointer(index, size, dtype int, normalized bool, stri
 	gl.context.Call("vertexAttribPointer", index, size, dtype, normalized, stride, offset)
 }
 
+func (gl *GL2) Destroy() {
+}
+
 type Result struct {
 	value js.Value
 }

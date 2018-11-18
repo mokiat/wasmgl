@@ -25,7 +25,10 @@ type WindowHints struct {
 }
 
 // CreateWindow creates a Window instance that works on an HTML canvas element and
-// abstracts away some OpenGL bootstrap calls. The API bears resemblance to GLFW API.
+// abstracts away some OpenGL bootstrap calls.
+//
+// Once the Window instance is no longer needed, the Destroy method should be called
+// to release any allocated resources.
 func CreateWindow(canvasID string, hints WindowHints) (*Window, error) {
 	htmlDocument := js.Global().Get("document")
 	if htmlDocument == js.Undefined() {
@@ -68,7 +71,6 @@ func (w *Window) InitGL2() (*GL2, error) {
 	return createGL2(w.htmlCanvas)
 }
 
-// LoopCallback
 type LoopCallback func(elapsedSeconds float32)
 
 // Loop initiates an update loop. The specified callback will be called
@@ -85,4 +87,8 @@ func (w *Window) Loop(delegate LoopCallback) {
 		js.Global().Call("requestAnimationFrame", callback)
 	})
 	js.Global().Call("requestAnimationFrame", callback)
+}
+
+// Destroy releases any allocated resources.
+func (w *Window) Destroy() {
 }
