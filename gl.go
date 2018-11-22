@@ -245,6 +245,7 @@ func createGLConstants(context js.Value) glConstants {
 		FLOAT:                       context.Get("FLOAT").Int(),
 		FRAGMENT_SHADER:             context.Get("FRAGMENT_SHADER").Int(),
 		LEQUAL:                      context.Get("LEQUAL").Int(),
+		LESS:                        context.Get("LESS").Int(),
 		LINEAR:                      context.Get("LINEAR").Int(),
 		LINK_STATUS:                 context.Get("LINK_STATUS").Int(),
 		RGB:                         context.Get("RGB").Int(),
@@ -284,6 +285,7 @@ type glConstants struct {
 	FLOAT                       int
 	FRAGMENT_SHADER             int
 	LEQUAL                      int
+	LESS                        int
 	LINEAR                      int
 	LINK_STATUS                 int
 	RGB                         int
