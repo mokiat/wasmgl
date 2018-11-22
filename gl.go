@@ -51,7 +51,7 @@ func (gl *GL) Clear(mask int) {
 	gl.context.Call("clear", mask)
 }
 
-func (gl *GL) ClearColor(r, g, b, a float64) {
+func (gl *GL) ClearColor(r, g, b, a float32) {
 	gl.context.Call("clearColor", r, g, b, a)
 }
 
