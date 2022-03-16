@@ -41,6 +41,14 @@ func ActiveTexture(texture int) {
 	context.Call("activeTexture", texture)
 }
 
+func AttachShader(program Program, shader Shader) {
+	context.Call("attachShader", js.Value(program), js.Value(shader))
+}
+
+func BindBuffer(target int, buffer Buffer) {
+	context.Call("bindBuffer", target, js.Value(buffer))
+}
+
 func BindTexture(target int, texture Texture) {
 	context.Call("bindTexture", target, js.Value(texture))
 }
@@ -55,6 +63,22 @@ func Clear(mask int) {
 
 func ClearColor(r, g, b, a float32) {
 	context.Call("clearColor", r, g, b, a)
+}
+
+func CompileShader(shader Shader) {
+	context.Call("compileShader", js.Value(shader))
+}
+
+func CreateBuffer() Buffer {
+	return Buffer(context.Call("createBuffer"))
+}
+
+func CreateProgram() Program {
+	return Program(context.Call("createProgram"))
+}
+
+func CreateShader(shaderType int) Shader {
+	return Shader(context.Call("createShader", shaderType))
 }
 
 func CreateTexture() Texture {
@@ -73,6 +97,26 @@ func DeleteVertexArray(array VertexArray) {
 	context.Call("deleteVertexArray", js.Value(array))
 }
 
+func DepthFunc(fn int) {
+	context.Call("depthFunc", fn)
+}
+
+func DepthMask(mask bool) {
+	context.Call("depthMask", mask)
+}
+
+func Disable(cap int) {
+	context.Call("disable", cap)
+}
+
+func DrawElements(mode, count, dtype, offset int) {
+	context.Call("drawElements", mode, count, dtype, offset)
+}
+
+func Enable(cap int) {
+	context.Call("enable", cap)
+}
+
 func GenerateMipmap(target int) {
 	context.Call("generateMipmap", target)
 }
@@ -89,4 +133,16 @@ func TexSubImage2D(target, level, xoffset, yoffset, width, height, format, dtype
 	tData := newTypedSlice(data)
 	defer tData.Release()
 	context.Call("texSubImage2D", target, level, xoffset, yoffset, width, height, format, dtype, tData.JSUint8Array())
+}
+
+func UseProgram(program Program) {
+	context.Call("useProgram", js.Value(program))
+}
+
+func VertexAttribPointer(index, size, dtype int, normalized bool, stride, offset int) {
+	context.Call("vertexAttribPointer", index, size, dtype, normalized, stride, offset)
+}
+
+func Viewport(x, y, width, height int) {
+	context.Call("viewport", x, y, width, height)
 }
