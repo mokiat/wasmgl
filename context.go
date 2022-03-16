@@ -37,8 +37,16 @@ func InitFromCanvas(htmlCanvas js.Value) error {
 	return nil
 }
 
+func ActiveTexture(texture int) {
+	context.Call("activeTexture", texture)
+}
+
 func BindTexture(target int, texture Texture) {
 	context.Call("bindTexture", target, js.Value(texture))
+}
+
+func BindVertexArray(array VertexArray) {
+	context.Call("bindVertexArray", js.Value(array))
 }
 
 func Clear(mask int) {
@@ -53,8 +61,16 @@ func CreateTexture() Texture {
 	return Texture(context.Call("createTexture"))
 }
 
+func CreateVertexArray() VertexArray {
+	return VertexArray(context.Call("createVertexArray"))
+}
+
 func DeleteTexture(texture Texture) {
 	context.Call("deleteTexture", js.Value(texture))
+}
+
+func DeleteVertexArray(array VertexArray) {
+	context.Call("deleteVertexArray", js.Value(array))
 }
 
 func GenerateMipmap(target int) {
