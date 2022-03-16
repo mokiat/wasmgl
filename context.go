@@ -72,12 +72,28 @@ func ClearColor(r, g, b, a float32) {
 	context.Call("clearColor", r, g, b, a)
 }
 
+func ClearDepth(depth float32) {
+	context.Call("clearDepth", depth)
+}
+
+func ClearStencil(stencil int) {
+	context.Call("clearStencil", stencil)
+}
+
+func ColorMask(r, g, b, a bool) {
+	context.Call("colorMask", r, g, b, a)
+}
+
 func CompileShader(shader Shader) {
 	context.Call("compileShader", js.Value(shader))
 }
 
 func CreateBuffer() Buffer {
 	return Buffer(context.Call("createBuffer"))
+}
+
+func CreateFramebuffer() Framebuffer {
+	return Framebuffer(context.Call("createFramebuffer"))
 }
 
 func CreateProgram() Program {

@@ -8,6 +8,8 @@ type AttribLocation js.Value
 
 type Buffer js.Value
 
+type Framebuffer js.Value
+
 type Program js.Value
 
 type Result js.Value

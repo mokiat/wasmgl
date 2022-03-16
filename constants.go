@@ -6,6 +6,7 @@ import "syscall/js"
 
 var (
 	ARRAY_BUFFER                int
+	BLEND                       int
 	CLAMP_TO_EDGE               int
 	COLOR_BUFFER_BIT            int
 	COMPILE_STATUS              int
@@ -20,14 +21,17 @@ var (
 	LINEAR                      int
 	LINEAR_MIPMAP_LINEAR        int
 	LINEAR_MIPMAP_NEAREST       int
+	LINK_STATUS                 int
+	NEAREST                     int
 	NEAREST_MIPMAP_LINEAR       int
 	NEAREST_MIPMAP_NEAREST      int
-	LINK_STATUS                 int
 	REPEAT                      int
 	RGB                         int
 	RGBA                        int
+	RGBA8                       int
 	SRGB8_ALPHA8                int
 	STATIC_DRAW                 int
+	STENCIL_BUFFER_BIT          int
 	TEXTURE0                    int
 	TEXTURE1                    int
 	TEXTURE2                    int
@@ -52,6 +56,7 @@ var (
 
 func initConstants(gl js.Value) {
 	ARRAY_BUFFER = gl.Get("ARRAY_BUFFER").Int()
+	BLEND = gl.Get("BLEND").Int()
 	CLAMP_TO_EDGE = gl.Get("CLAMP_TO_EDGE").Int()
 	COLOR_BUFFER_BIT = gl.Get("COLOR_BUFFER_BIT").Int()
 	COMPILE_STATUS = gl.Get("COMPILE_STATUS").Int()
@@ -66,14 +71,17 @@ func initConstants(gl js.Value) {
 	LINEAR = gl.Get("LINEAR").Int()
 	LINEAR_MIPMAP_LINEAR = gl.Get("LINEAR_MIPMAP_LINEAR").Int()
 	LINEAR_MIPMAP_NEAREST = gl.Get("LINEAR_MIPMAP_NEAREST").Int()
+	LINK_STATUS = gl.Get("LINK_STATUS").Int()
+	NEAREST = gl.Get("NEAREST").Int()
 	NEAREST_MIPMAP_LINEAR = gl.Get("NEAREST_MIPMAP_LINEAR").Int()
 	NEAREST_MIPMAP_NEAREST = gl.Get("NEAREST_MIPMAP_NEAREST").Int()
-	LINK_STATUS = gl.Get("LINK_STATUS").Int()
 	REPEAT = gl.Get("REPEAT").Int()
 	RGB = gl.Get("RGB").Int()
 	RGBA = gl.Get("RGBA").Int()
+	RGBA8 = gl.Get("RGBA8").Int()
 	SRGB8_ALPHA8 = gl.Get("SRGB8_ALPHA8").Int()
 	STATIC_DRAW = gl.Get("STATIC_DRAW").Int()
+	STENCIL_BUFFER_BIT = gl.Get("STENCIL_BUFFER_BIT").Int()
 	TEXTURE0 = gl.Get("TEXTURE0").Int()
 	TEXTURE1 = gl.Get("TEXTURE1").Int()
 	TEXTURE2 = gl.Get("TEXTURE2").Int()
