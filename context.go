@@ -57,6 +57,13 @@ func BindVertexArray(array VertexArray) {
 	context.Call("bindVertexArray", js.Value(array))
 }
 
+func BufferData(target int, data []byte, usage int) {
+	// TODO: Handle nil data
+	tData := newTypedSlice(data)
+	defer tData.Release()
+	context.Call("bufferData", target, tData.JSUint8Array(), usage)
+}
+
 func Clear(mask int) {
 	context.Call("clear", mask)
 }
@@ -109,6 +116,10 @@ func Disable(cap int) {
 	context.Call("disable", cap)
 }
 
+func DisableVertexAttribArray(index int) {
+	context.Call("disableVertexAttribArray", index)
+}
+
 func DrawElements(mode, count, dtype, offset int) {
 	context.Call("drawElements", mode, count, dtype, offset)
 }
@@ -117,8 +128,50 @@ func Enable(cap int) {
 	context.Call("enable", cap)
 }
 
+func EnableVertexAttribArray(index int) {
+	context.Call("enableVertexAttribArray", index)
+}
+
 func GenerateMipmap(target int) {
 	context.Call("generateMipmap", target)
+}
+
+func GetAttribLocation(program Program, name string) AttribLocation {
+	return AttribLocation(context.Call("getAttribLocation", js.Value(program), name))
+}
+
+func GetProgramInfoLog(program Program) string {
+	return context.Call("getProgramInfoLog", js.Value(program)).String()
+}
+
+func GetProgramParameter(program Program, pname int) Result {
+	return Result(context.Call("getProgramParameter", js.Value(program), pname))
+}
+
+func GetShaderInfoLog(shader Shader) string {
+	return context.Call("getShaderInfoLog", js.Value(shader)).String()
+}
+
+func GetShaderParameter(shader Shader, pname int) Result {
+	return Result(context.Call("getShaderParameter", js.Value(shader), pname))
+}
+
+func GetUniformLocation(program Program, name string) UniformLocation {
+	return UniformLocation(context.Call("getUniformLocation", js.Value(program), name))
+}
+
+func LinkProgram(program Program) {
+	context.Call("linkProgram", js.Value(program))
+}
+
+func ShaderSource(shader Shader, source string) {
+	context.Call("shaderSource", js.Value(shader), source)
+}
+
+func TexImage2D(target, level, internalFormat, width, height, border, format, dtype int, data []byte) {
+	tData := newTypedSlice(data)
+	defer tData.Release()
+	context.Call("texImage2D", target, level, internalFormat, width, height, border, format, dtype, tData.JSUint8Array())
 }
 
 func TexParameteri(target, pname, param int) {
@@ -133,6 +186,17 @@ func TexSubImage2D(target, level, xoffset, yoffset, width, height, format, dtype
 	tData := newTypedSlice(data)
 	defer tData.Release()
 	context.Call("texSubImage2D", target, level, xoffset, yoffset, width, height, format, dtype, tData.JSUint8Array())
+}
+
+func Uniform1i(location UniformLocation, x int) {
+	context.Call("uniform1i", js.Value(location), x)
+}
+
+func UniformMatrix4fv(location UniformLocation, transpose bool, data []float32) {
+	// TODO: Figure out a more lightweight way to do this
+	tData := newTypedSlice(data)
+	defer tData.Release()
+	context.Call("uniformMatrix4fv", js.Value(location), transpose, tData.JSUint8Array())
 }
 
 func UseProgram(program Program) {
