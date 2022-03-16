@@ -37,10 +37,40 @@ func InitFromCanvas(htmlCanvas js.Value) error {
 	return nil
 }
 
+func BindTexture(target int, texture Texture) {
+	context.Call("bindTexture", target, js.Value(texture))
+}
+
 func Clear(mask int) {
 	context.Call("clear", mask)
 }
 
 func ClearColor(r, g, b, a float32) {
 	context.Call("clearColor", r, g, b, a)
+}
+
+func CreateTexture() Texture {
+	return Texture(context.Call("createTexture"))
+}
+
+func DeleteTexture(texture Texture) {
+	context.Call("deleteTexture", js.Value(texture))
+}
+
+func GenerateMipmap(target int) {
+	context.Call("generateMipmap", target)
+}
+
+func TexParameteri(target, pname, param int) {
+	context.Call("texParameteri", target, pname, param)
+}
+
+func TexStorage2D(target, levels, internalFormat, width, height int) {
+	context.Call("texStorage2D", target, levels, internalFormat, width, height)
+}
+
+func TexSubImage2D(target, level, xoffset, yoffset, width, height, format, dtype int, data []byte) {
+	tData := newTypedSlice(data)
+	defer tData.Release()
+	context.Call("texSubImage2D", target, level, xoffset, yoffset, width, height, format, dtype, tData.JSUint8Array())
 }
