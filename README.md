@@ -1,49 +1,24 @@
-# WASM GL
+# Go WASM GL
 
-This project aims at simplifying WebGL usage from Go WebAssembly modules.
+This project aims to expose the WebGL2 API as Go API that can be used
+in wasm projects.
 
-Normally a developer would be required to use `syscall/js` to manually call into JS objects in order to issue WebGL calls. The functions and types exposed by this project abstract away this and allow for native GL invocations (which instead do all the `syscall/js` calls).
-
-> **Warning: The project is in early development by me, during my free time, and the API is likely to change in backward incompatible way.**
+> **Warning:** The project is in early development and the API is likely to change in backward incompatible ways!
 
 ## Getting Started
 
 You need to add the project as a dependency.
 
 ```
-go get github.com/mokiat/wasmgl
+go get github.com/mokiat/wasmgl@master
 ```
 
-When developing in your editor (e.g. Visual Studio Code), you need to make sure you have started it with the proper environment variables set, otherwise you will get error messages. This is related to the `syscall/js` package.
+The implementation uses `syscall/js` calls and as such requires that client applications are complied with `GOOS=js` and `GOARCH=wasm` options.
 
-```bash
-export GOOS=js
-export GOARCH=wasm
-```
+If you are unfamiliar with how Go and WASM works, then you should have a look at
+the official [WebAssembly with Go documentation](https://github.com/golang/go/wiki/WebAssembly).
 
-You should follow the official [Go WebAssembly documentation](https://github.com/golang/go/wiki/WebAssembly) on how to set up an HTML project.
-
-Following is an example on how your HTML could look like.
-
-```html
-<html>
-    <head>
-        <meta charset="utf-8">
-        <script src="wasm_exec.js"></script>
-        <script>
-            const go = new Go();
-            WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
-                go.run(result.instance);
-            });
-        </script>
-    </head>
-    <body>
-        <canvas id="glcanvas"></canvas>
-    </body>
-</html>
-```
-
-Following is an example Go code that fills the canvas with green color though WebGL.
+Following is an example Go code that clears the canvas with the color green.
 
 ```go
 package main
@@ -54,31 +29,13 @@ import (
 	"github.com/mokiat/wasmgl"
 )
 
-const (
-	width  = 800
-	height = 600
-)
-
 func main() {
-	window, err := wasmgl.CreateWindow("glcanvas", wasmgl.WindowHints{
-		Width:  width,
-		Height: height,
-	})
+	err := wasmgl.InitFromID("glcanvas");
 	if err != nil {
-		log.Fatalf("failed to initialize window: %s", err)
+		log.Fatalf("Failed to initialize wasmgl: %v", err)
 	}
 
-	gl, err := window.InitGL2()
-	if err != nil {
-		log.Fatalf("failed to initialize webgl2: %s", err)
-	}
-	gl.Viewport(0, 0, width, height)
-
-	window.Loop(func(elaspedSeconds float32) {
-		gl.ClearColor(0.0, 1.0, 0.0, 1.0)
-		gl.Clear(gl.ColorBufferBit)
-	})
-
-	<-make(chan struct{})
+	wasmgl.ClearColor(0.0, 1.0, 0.0, 1.0)
+	wasmgl.Clear(wasmgl.COLOR_BUFFER_BIT)
 }
 ```
