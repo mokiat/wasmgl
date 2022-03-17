@@ -28,4 +28,10 @@ type Texture js.Value
 
 type UniformLocation js.Value
 
+func (l UniformLocation) Valid() bool {
+	return !js.Value(l).IsUndefined()
+}
+
 type VertexArray js.Value
+
+var NullVertexArray = VertexArray(js.Null())

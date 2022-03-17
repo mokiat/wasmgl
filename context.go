@@ -7,6 +7,10 @@ import (
 	"syscall/js"
 )
 
+// Reference on WebGL1 and WebGL2 API:
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext
+
 var context js.Value
 
 // InitFromID initializes webgl context and bindings
@@ -57,11 +61,8 @@ func BindVertexArray(array VertexArray) {
 	context.Call("bindVertexArray", js.Value(array))
 }
 
-func BufferData(target int, data []byte, usage int) {
-	// TODO: Handle nil data
-	tData := newTypedSlice(data)
-	defer tData.Release()
-	context.Call("bufferData", target, tData.JSUint8Array(), usage)
+func BlendFunc(sfactor, dfactor int) {
+	context.Call("blendFunc", sfactor, dfactor)
 }
 
 func Clear(mask int) {
@@ -88,10 +89,6 @@ func CompileShader(shader Shader) {
 	context.Call("compileShader", js.Value(shader))
 }
 
-func CreateBuffer() Buffer {
-	return Buffer(context.Call("createBuffer"))
-}
-
 func CreateFramebuffer() Framebuffer {
 	return Framebuffer(context.Call("createFramebuffer"))
 }
@@ -110,6 +107,10 @@ func CreateTexture() Texture {
 
 func CreateVertexArray() VertexArray {
 	return VertexArray(context.Call("createVertexArray"))
+}
+
+func CullFace(mode int) {
+	context.Call("cullFace", mode)
 }
 
 func DeleteTexture(texture Texture) {
@@ -134,10 +135,6 @@ func Disable(cap int) {
 
 func DisableVertexAttribArray(index int) {
 	context.Call("disableVertexAttribArray", index)
-}
-
-func DrawElements(mode, count, dtype, offset int) {
-	context.Call("drawElements", mode, count, dtype, offset)
 }
 
 func Enable(cap int) {
@@ -204,17 +201,6 @@ func TexSubImage2D(target, level, xoffset, yoffset, width, height, format, dtype
 	context.Call("texSubImage2D", target, level, xoffset, yoffset, width, height, format, dtype, tData.JSUint8Array())
 }
 
-func Uniform1i(location UniformLocation, x int) {
-	context.Call("uniform1i", js.Value(location), x)
-}
-
-func UniformMatrix4fv(location UniformLocation, transpose bool, data []float32) {
-	// TODO: Figure out a more lightweight way to do this
-	tData := newTypedSlice(data)
-	defer tData.Release()
-	context.Call("uniformMatrix4fv", js.Value(location), transpose, tData.JSUint8Array())
-}
-
 func UseProgram(program Program) {
 	context.Call("useProgram", js.Value(program))
 }
@@ -225,4 +211,82 @@ func VertexAttribPointer(index, size, dtype int, normalized bool, stride, offset
 
 func Viewport(x, y, width, height int) {
 	context.Call("viewport", x, y, width, height)
+}
+
+// buffers
+
+func CreateBuffer() Buffer {
+	return Buffer(context.Call("createBuffer"))
+}
+
+func BufferData(target int, data []byte, usage int) {
+	// TODO: Handle nil data
+	tData := newTypedSlice(data)
+	defer tData.Release()
+	context.Call("bufferData", target, tData.JSUint8Array(), usage)
+}
+
+func BufferSubData(target, dstOffset int, data []byte) {
+	tData := newTypedSlice(data)
+	defer tData.Release()
+	context.Call("bufferSubData", target, dstOffset, tData.JSUint8Array())
+}
+
+func DeleteBuffer(buffer Buffer) {
+	context.Call("deleteBuffer", js.Value(buffer))
+}
+
+// drawing
+
+func DrawArrays(mode, first, count int) {
+	context.Call("drawArrays", mode, first, count)
+}
+
+func DrawElements(mode, count, dtype, offset int) {
+	context.Call("drawElements", mode, count, dtype, offset)
+}
+
+// shaders
+
+func DeleteShader(shader Shader) {
+	context.Call("deleteShader", js.Value(shader))
+}
+
+// programs
+
+func DeleteProgram(program Program) {
+	context.Call("deleteProgram", js.Value(program))
+}
+
+func DetachShader(program Program, shader Shader) {
+	context.Call("detachShader", js.Value(program), js.Value(shader))
+}
+
+// stencil
+
+func StencilFuncSeparate(face, fun, ref, mask int) {
+	context.Call("stencilFuncSeparate", face, fun, ref, mask)
+}
+
+func StencilOpSeparate(face, fail, zfail, zpass int) {
+	context.Call("stencilOpSeparate", face, fail, zfail, zpass)
+}
+
+// uniforms
+
+func Uniform1i(location UniformLocation, x int) {
+	context.Call("uniform1i", js.Value(location), x)
+}
+
+func Uniform4f(location UniformLocation, x, y, z, w float32) {
+	context.Call("uniform4f", js.Value(location), x, y, z, w)
+}
+
+func UniformMatrix4fv(location UniformLocation, transpose bool, data []float32) {
+	// TODO: Figure out a more lightweight way to do this
+	jsData := make([]interface{}, len(data))
+	for i, v := range data {
+		jsData[i] = v
+	}
+	context.Call("uniformMatrix4fv", js.Value(location), transpose, jsData)
 }

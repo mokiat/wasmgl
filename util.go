@@ -26,6 +26,13 @@ func (s *typedSlice) JSUint8Array() js.Value {
 	return typedArray
 }
 
+func (s *typedSlice) JSFloat32Array() js.Value {
+	byteSlice := sliceToByteSlice(s.data)
+	typedArray := js.Global().Get("Uint8Array").New(len(byteSlice))
+	js.CopyBytesToJS(typedArray, sliceToByteSlice(byteSlice))
+	return js.Global().Get("Float32Array").Call("from", typedArray)
+}
+
 func (s *typedSlice) Release() {
 	s.data = nil
 }
