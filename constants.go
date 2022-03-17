@@ -29,9 +29,6 @@ var (
 	NEAREST_MIPMAP_NEAREST      int
 	ONE_MINUS_SRC_ALPHA         int
 	REPEAT                      int
-	RGB                         int
-	RGBA                        int
-	RGBA8                       int
 	SRC_ALPHA                   int
 	SRGB8_ALPHA8                int
 	STENCIL_BUFFER_BIT          int
@@ -77,6 +74,10 @@ var (
 	GEQUAL   int
 	ALWAYS   int
 
+	// framebuffers and renderbuffers
+	FRAMEBUFFER    int
+	STENCIL_INDEX8 int
+
 	// stencil operations
 	KEEP      int
 	REPLACE   int
@@ -85,6 +86,12 @@ var (
 	INVERT    int
 	INCR_WRAP int
 	DECR_WRAP int
+
+	// textures
+	R8    int
+	RGB   int
+	RGBA  int
+	RGBA8 int
 )
 
 func initConstants(gl js.Value) {
@@ -109,9 +116,6 @@ func initConstants(gl js.Value) {
 	NEAREST_MIPMAP_NEAREST = gl.Get("NEAREST_MIPMAP_NEAREST").Int()
 	ONE_MINUS_SRC_ALPHA = gl.Get("ONE_MINUS_SRC_ALPHA").Int()
 	REPEAT = gl.Get("REPEAT").Int()
-	RGB = gl.Get("RGB").Int()
-	RGBA = gl.Get("RGBA").Int()
-	RGBA8 = gl.Get("RGBA8").Int()
 	SRC_ALPHA = gl.Get("SRC_ALPHA").Int()
 	SRGB8_ALPHA8 = gl.Get("SRGB8_ALPHA8").Int()
 	STENCIL_BUFFER_BIT = gl.Get("STENCIL_BUFFER_BIT").Int()
@@ -157,6 +161,10 @@ func initConstants(gl js.Value) {
 	GEQUAL = gl.Get("GEQUAL").Int()
 	ALWAYS = gl.Get("ALWAYS").Int()
 
+	// framebuffers and renderbuffers
+	FRAMEBUFFER = gl.Get("FRAMEBUFFER").Int()
+	STENCIL_INDEX8 = gl.Get("STENCIL_INDEX8").Int()
+
 	// stencil operations
 	KEEP = gl.Get("KEEP").Int()
 	REPLACE = gl.Get("REPLACE").Int()
@@ -165,4 +173,10 @@ func initConstants(gl js.Value) {
 	INVERT = gl.Get("INVERT").Int()
 	INCR_WRAP = gl.Get("INCR_WRAP").Int()
 	DECR_WRAP = gl.Get("DECR_WRAP").Int()
+
+	// textures
+	R8 = gl.Get("R8").Int()
+	RGB = gl.Get("RGB").Int()
+	RGBA = gl.Get("RGBA").Int()
+	RGBA8 = gl.Get("RGBA8").Int()
 }

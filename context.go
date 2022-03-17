@@ -89,10 +89,6 @@ func CompileShader(shader Shader) {
 	context.Call("compileShader", js.Value(shader))
 }
 
-func CreateFramebuffer() Framebuffer {
-	return Framebuffer(context.Call("createFramebuffer"))
-}
-
 func CreateProgram() Program {
 	return Program(context.Call("createProgram"))
 }
@@ -244,6 +240,20 @@ func DrawArrays(mode, first, count int) {
 
 func DrawElements(mode, count, dtype, offset int) {
 	context.Call("drawElements", mode, count, dtype, offset)
+}
+
+// framebuffers
+
+func CreateFramebuffer() Framebuffer {
+	return Framebuffer(context.Call("createFramebuffer"))
+}
+
+func BindFramebuffer(target int, framebuffer Framebuffer) {
+	context.Call("bindFramebuffer", target, js.Value(framebuffer))
+}
+
+func DeleteFramebuffer(framebuffer Framebuffer) {
+	context.Call("deleteFramebuffer", js.Value(framebuffer))
 }
 
 // shaders

@@ -10,6 +10,8 @@ type Buffer js.Value
 
 type Framebuffer js.Value
 
+var NullFramebuffer = Framebuffer(js.Null())
+
 type Program js.Value
 
 type Result js.Value
@@ -29,7 +31,7 @@ type Texture js.Value
 type UniformLocation js.Value
 
 func (l UniformLocation) Valid() bool {
-	return !js.Value(l).IsUndefined()
+	return !js.Value(l).IsUndefined() && !js.Value(l).IsNull()
 }
 
 type VertexArray js.Value
