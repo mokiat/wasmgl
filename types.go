@@ -28,6 +28,8 @@ type Shader js.Value
 
 type Texture js.Value
 
+var NullTexture = Texture(js.Null())
+
 type UniformLocation js.Value
 
 func (l UniformLocation) Valid() bool {

@@ -22,8 +22,18 @@ type typedSlice struct {
 func (s *typedSlice) JSUint8Array() js.Value {
 	byteSlice := sliceToByteSlice(s.data)
 	typedArray := js.Global().Get("Uint8Array").New(len(byteSlice))
-	js.CopyBytesToJS(typedArray, sliceToByteSlice(byteSlice))
+	js.CopyBytesToJS(typedArray, byteSlice)
 	return typedArray
+}
+
+func (s *typedSlice) ArrayBuffer() js.Value {
+	byteSlice := sliceToByteSlice(s.data)
+	buffer := js.Global().Get("ArrayBuffer").New(len(byteSlice))
+
+	typedArray := js.Global().Get("Uint8Array").New(buffer)
+	js.CopyBytesToJS(typedArray, byteSlice)
+
+	return buffer
 }
 
 func (s *typedSlice) Release() {

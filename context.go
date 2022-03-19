@@ -41,6 +41,21 @@ func InitFromCanvas(htmlCanvas js.Value) error {
 	return nil
 }
 
+func GetExtension(name string) interface{} {
+	result := context.Call("getExtension", name)
+	if result.IsNull() {
+		return nil
+	}
+	// TODO: In the future we could have specific Go types that are
+	// returned depending on the extension name and that expose
+	// the specific functions and constants of the extension.
+	return true
+}
+
+func GetError() int {
+	return context.Call("getError").Int()
+}
+
 func ActiveTexture(texture int) {
 	context.Call("activeTexture", texture)
 }
@@ -63,6 +78,14 @@ func BindVertexArray(array VertexArray) {
 
 func BlendFunc(sfactor, dfactor int) {
 	context.Call("blendFunc", sfactor, dfactor)
+}
+
+func BlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha int) {
+	context.Call("blendFuncSeparate", srcRGB, dstRGB, srcAlpha, dstAlpha)
+}
+
+func BlendEquationSeparate(modeRGB, modeAlpha int) {
+	context.Call("blendEquationSeparate", modeRGB, modeAlpha)
 }
 
 func Clear(mask int) {
@@ -191,12 +214,6 @@ func TexStorage2D(target, levels, internalFormat, width, height int) {
 	context.Call("texStorage2D", target, levels, internalFormat, width, height)
 }
 
-func TexSubImage2D(target, level, xoffset, yoffset, width, height, format, dtype int, data []byte) {
-	tData := newTypedSlice(data)
-	defer tData.Release()
-	context.Call("texSubImage2D", target, level, xoffset, yoffset, width, height, format, dtype, tData.JSUint8Array())
-}
-
 func UseProgram(program Program) {
 	context.Call("useProgram", js.Value(program))
 }
@@ -234,6 +251,10 @@ func DeleteBuffer(buffer Buffer) {
 
 // drawing
 
+func Scissor(x, y, width, height int) {
+	context.Call("scissor", x, y, width, height)
+}
+
 func DrawArrays(mode, first, count int) {
 	context.Call("drawArrays", mode, first, count)
 }
@@ -250,6 +271,27 @@ func CreateFramebuffer() Framebuffer {
 
 func BindFramebuffer(target int, framebuffer Framebuffer) {
 	context.Call("bindFramebuffer", target, js.Value(framebuffer))
+}
+
+func FramebufferTexture2D(target, attachment, texTarget int, texture Texture, level int) {
+	context.Call("framebufferTexture2D", target, attachment, texTarget, js.Value(texture), level)
+}
+
+func CheckFramebufferStatus(target int) int {
+	return context.Call("checkFramebufferStatus", target).Int()
+}
+
+func DrawBuffers(buffers []int) {
+	// TODO: Figure out a more lightweight way to do this
+	jsBuffers := make([]interface{}, len(buffers))
+	for i, v := range buffers {
+		jsBuffers[i] = v
+	}
+	context.Call("drawBuffers", jsBuffers)
+}
+
+func BlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter int) {
+	context.Call("blitFramebuffer", srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter)
 }
 
 func DeleteFramebuffer(framebuffer Framebuffer) {
@@ -282,10 +324,49 @@ func StencilOpSeparate(face, fail, zfail, zpass int) {
 	context.Call("stencilOpSeparate", face, fail, zfail, zpass)
 }
 
+// textures
+
+func TexSubImage2D(target, level, xoffset, yoffset, width, height, format, dtype int, data []byte) {
+	tData := newTypedSlice(data)
+	defer tData.Release()
+
+	switch dtype {
+	case UNSIGNED_BYTE:
+		buffer := tData.ArrayBuffer()
+		uintArray := js.Global().Get("Uint8Array").New(buffer)
+		context.Call("texSubImage2D", target, level, xoffset, yoffset, width, height, format, dtype, uintArray)
+	case FLOAT:
+		// TODO: Optimize this with staging area
+		buffer := tData.ArrayBuffer()
+		floatArray := js.Global().Get("Float32Array").New(buffer)
+		context.Call("texSubImage2D", target, level, xoffset, yoffset, width, height, format, dtype, floatArray)
+	default:
+		panic(fmt.Errorf("unsupported dtype: %d", dtype))
+	}
+}
+
+func TexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, dtype int, data []byte) {
+	tData := newTypedSlice(data)
+	defer tData.Release()
+	context.Call("texSubImage3D", target, level, xoffset, yoffset, zoffset, width, height, depth, format, dtype, tData.JSUint8Array())
+}
+
+func CopyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height int) {
+	context.Call("copyTexSubImage2D", target, level, xoffset, yoffset, x, y, width, height)
+}
+
 // uniforms
+
+func Uniform1f(location UniformLocation, x float32) {
+	context.Call("uniform1f", js.Value(location), x)
+}
 
 func Uniform1i(location UniformLocation, x int) {
 	context.Call("uniform1i", js.Value(location), x)
+}
+
+func Uniform3f(location UniformLocation, x, y, z float32) {
+	context.Call("uniform3f", js.Value(location), x, y, z)
 }
 
 func Uniform4f(location UniformLocation, x, y, z, w float32) {
