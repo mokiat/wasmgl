@@ -457,16 +457,13 @@ func Viewport(x, y, width, height int) {
 }
 
 func BufferData(target int, data []byte, usage int) {
-	// TODO: Handle nil data
-	tData := newTypedSlice(data)
-	defer tData.Release()
-	fnBufferData.Invoke(target, tData.JSUint8Array(), usage)
+	pushBufferData(data)
+	fnBufferData.Invoke(target, uint8Array, usage, 0, len(data))
 }
 
 func BufferSubData(target, dstOffset int, data []byte) {
-	tData := newTypedSlice(data)
-	defer tData.Release()
-	fnBufferSubData.Invoke(target, dstOffset, tData.JSUint8Array())
+	pushBufferData(data)
+	fnBufferSubData.Invoke(target, dstOffset, uint8Array, 0, len(data))
 }
 
 func ReadPixels(x, y, width, height, format, dtype, offset int) {
@@ -474,46 +471,32 @@ func ReadPixels(x, y, width, height, format, dtype, offset int) {
 }
 
 func TexImage2D(target, level, internalFormat, width, height, border, format, dtype int, data []byte) {
-	tData := newTypedSlice(data)
-	defer tData.Release()
-	fnTexImage2D.Invoke(target, level, internalFormat, width, height, border, format, dtype, tData.JSUint8Array())
+	pushBufferData(data)
+	fnTexImage2D.Invoke(target, level, internalFormat, width, height, border, format, dtype, uint8Array, 0)
 }
 
 func TexSubImage2D(target, level, xoffset, yoffset, width, height, format, dtype int, data []byte) {
-	tData := newTypedSlice(data)
-	defer tData.Release()
-
+	pushBufferData(data)
 	switch dtype {
 	case UNSIGNED_BYTE:
-		buffer := tData.ArrayBuffer()
-		uintArray := js.Global().Get("Uint8Array").New(buffer)
-		fnTexSubImage2D.Invoke(target, level, xoffset, yoffset, width, height, format, dtype, uintArray)
+		fnTexSubImage2D.Invoke(target, level, xoffset, yoffset, width, height, format, dtype, uint8Array, 0)
 	case FLOAT:
-		// TODO: Optimize this with staging area
-		floatArray := js.Global().Get("Float32Array").New(tData.ArrayBuffer())
-		fnTexSubImage2D.Invoke(target, level, xoffset, yoffset, width, height, format, dtype, floatArray)
+		fnTexSubImage2D.Invoke(target, level, xoffset, yoffset, width, height, format, dtype, float32Array, 0)
 	default:
 		panic(fmt.Errorf("unsupported dtype: %d", dtype))
 	}
 }
 
 func UniformMatrix4fv(location UniformLocation, transpose bool, data []float32) {
-	// TODO: Figure out a more lightweight way to do this
-	jsData := make([]interface{}, len(data))
-	for i, v := range data {
-		jsData[i] = v
-	}
-	fnUniformMatrix4fv.Invoke(js.Value(location), transpose, jsData)
+	pushBufferData(data)
+	fnUniformMatrix4fv.Invoke(js.Value(location), transpose, float32Array, 0, len(data))
 }
 
 func GetBufferSubData(target, srcOffset int, data interface{}) {
-	tData := newTypedSlice(data)
-	defer tData.Release()
-	uintArray := tData.JSUint8Array()
-	fnGetBufferSubData.Invoke(target, 0, uintArray)
-
-	sliceData := asByteSlice(data)
-	js.CopyBytesToGo(sliceData, uintArray)
+	length := byteSize(data)
+	ensureBufferSize(length)
+	fnGetBufferSubData.Invoke(target, 0, uint8Array, 0, length)
+	popBufferData(data)
 }
 
 func BlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter int) {
@@ -525,18 +508,14 @@ func TexStorage2D(target, levels, internalFormat, width, height int) {
 }
 
 func TexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, dtype int, data []byte) {
-	tData := newTypedSlice(data)
-	defer tData.Release()
-	fnTexSubImage3D.Invoke(target, level, xoffset, yoffset, zoffset, width, height, depth, format, dtype, tData.JSUint8Array())
+	pushBufferData(data)
+	fnTexSubImage3D.Invoke(target, level, xoffset, yoffset, zoffset, width, height, depth, format, dtype, uint8Array, 0)
 }
 
 func DrawBuffers(buffers []int) {
-	// TODO: Figure out a more lightweight way to do this
-	jsBuffers := make([]interface{}, len(buffers))
-	for i, v := range buffers {
-		jsBuffers[i] = v
-	}
-	fnDrawBuffers.Invoke(jsBuffers)
+	ensureSliceSize(len(buffers))
+	view := pushSliceData(buffers, 0)
+	fnDrawBuffers.Invoke(view)
 }
 
 func FenceSync(condition, flags int) Sync {
