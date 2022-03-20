@@ -7,6 +7,9 @@ import "syscall/js"
 // Reference on WebGL2 constants:
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Constants
 
+// TODO: Hardcode the values of these constants instead of resolving them.
+// This would allow them to be usable before the GL context is initialized.
+
 var (
 	NO_ERROR                    int
 	BACK                        int
@@ -82,6 +85,7 @@ var (
 	ELEMENT_ARRAY_BUFFER int
 	BUFFER_SIZE          int
 	BUFFER_USAGE         int
+	PIXEL_PACK_BUFFER    int
 
 	// depth or stencil tests
 	NEVER    int
@@ -128,12 +132,30 @@ var (
 	INCR_WRAP int
 	DECR_WRAP int
 
+	// sync objects
+	OBJECT_TYPE                int
+	SYNC_CONDITION             int
+	SYNC_STATUS                int
+	SYNC_FLAGS                 int
+	SYNC_FENCE                 int
+	SYNC_GPU_COMMANDS_COMPLETE int
+	UNSIGNALED                 int
+	SIGNALED                   int
+	ALREADY_SIGNALED           int
+	TIMEOUT_EXPIRED            int
+	CONDITION_SATISFIED        int
+	WAIT_FAILED                int
+	SYNC_FLUSH_COMMANDS_BIT    int
+
 	// textures
 	RED             int
 	R8              int
 	RGB             int
 	RGBA            int
 	RGBA8           int
+	RGB16F          int
+	RGBA16F         int
+	RGB32F          int
 	RGBA32F         int
 	MIRRORED_REPEAT int
 )
@@ -213,6 +235,7 @@ func initConstants(gl js.Value) {
 	ELEMENT_ARRAY_BUFFER = gl.Get("ELEMENT_ARRAY_BUFFER").Int()
 	BUFFER_SIZE = gl.Get("BUFFER_SIZE").Int()
 	BUFFER_USAGE = gl.Get("BUFFER_USAGE").Int()
+	PIXEL_PACK_BUFFER = gl.Get("PIXEL_PACK_BUFFER").Int()
 
 	// depth or stencil tests
 	NEVER = gl.Get("NEVER").Int()
@@ -259,12 +282,30 @@ func initConstants(gl js.Value) {
 	INCR_WRAP = gl.Get("INCR_WRAP").Int()
 	DECR_WRAP = gl.Get("DECR_WRAP").Int()
 
+	// sync objects
+	OBJECT_TYPE = gl.Get("OBJECT_TYPE").Int()
+	SYNC_CONDITION = gl.Get("SYNC_CONDITION").Int()
+	SYNC_STATUS = gl.Get("SYNC_STATUS").Int()
+	SYNC_FLAGS = gl.Get("SYNC_FLAGS").Int()
+	SYNC_FENCE = gl.Get("SYNC_FENCE").Int()
+	SYNC_GPU_COMMANDS_COMPLETE = gl.Get("SYNC_GPU_COMMANDS_COMPLETE").Int()
+	UNSIGNALED = gl.Get("UNSIGNALED").Int()
+	SIGNALED = gl.Get("SIGNALED").Int()
+	ALREADY_SIGNALED = gl.Get("ALREADY_SIGNALED").Int()
+	TIMEOUT_EXPIRED = gl.Get("TIMEOUT_EXPIRED").Int()
+	CONDITION_SATISFIED = gl.Get("CONDITION_SATISFIED").Int()
+	WAIT_FAILED = gl.Get("WAIT_FAILED").Int()
+	SYNC_FLUSH_COMMANDS_BIT = gl.Get("SYNC_FLUSH_COMMANDS_BIT").Int()
+
 	// textures
 	RED = gl.Get("RED").Int()
 	R8 = gl.Get("R8").Int()
 	RGB = gl.Get("RGB").Int()
 	RGBA = gl.Get("RGBA").Int()
 	RGBA8 = gl.Get("RGBA8").Int()
+	RGB16F = gl.Get("RGB16F").Int()
+	RGBA16F = gl.Get("RGBA16F").Int()
+	RGB32F = gl.Get("RGB32F").Int()
 	RGBA32F = gl.Get("RGBA32F").Int()
 	MIRRORED_REPEAT = gl.Get("MIRRORED_REPEAT").Int()
 }

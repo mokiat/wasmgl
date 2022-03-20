@@ -9,6 +9,9 @@ import (
 	"unsafe"
 )
 
+// TODO: Use one big ArrayBuffer for all data transfers instead of allocating
+// each time.
+
 func newTypedSlice(data interface{}) *typedSlice {
 	return &typedSlice{
 		data: data,

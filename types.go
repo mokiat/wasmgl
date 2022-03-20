@@ -8,6 +8,8 @@ type AttribLocation js.Value
 
 type Buffer js.Value
 
+var NullBuffer = Buffer(js.Null())
+
 type Framebuffer js.Value
 
 var NullFramebuffer = Framebuffer(js.Null())
@@ -39,3 +41,11 @@ func (l UniformLocation) Valid() bool {
 type VertexArray js.Value
 
 var NullVertexArray = VertexArray(js.Null())
+
+type Sync js.Value
+
+func (s Sync) Valid() bool {
+	return !js.Value(s).IsUndefined() && !js.Value(s).IsNull()
+}
+
+var NullSync = Sync(js.Null())

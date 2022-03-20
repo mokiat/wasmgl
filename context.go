@@ -7,7 +7,8 @@ import (
 	"syscall/js"
 )
 
-// Reference on WebGL1 and WebGL2 API:
+// References on WebGL1 and WebGL2 API:
+// https://www.khronos.org/registry/webgl/specs/latest/2.0/
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext
 
@@ -50,6 +51,22 @@ func GetExtension(name string) interface{} {
 	// returned depending on the extension name and that expose
 	// the specific functions and constants of the extension.
 	return true
+}
+
+func ReadPixels(x, y, width, height, format, dtype, offset int) {
+	context.Call("readPixels", x, y, width, height, format, dtype, offset)
+}
+
+func ClientWaitSync(sync Sync, flags, timeout int) int {
+	return context.Call("clientWaitSync", js.Value(sync), flags, timeout).Int()
+}
+
+func DeleteSync(sync Sync) {
+	context.Call("deleteSync", js.Value(sync))
+}
+
+func FenceSync(condition, flags int) Sync {
+	return Sync(context.Call("fenceSync", condition, flags))
 }
 
 func GetError() int {
@@ -245,6 +262,16 @@ func BufferSubData(target, dstOffset int, data []byte) {
 	context.Call("bufferSubData", target, dstOffset, tData.JSUint8Array())
 }
 
+func GetBufferSubData(target, srcOffset int, data interface{}) {
+	tData := newTypedSlice(data)
+	defer tData.Release()
+	uintArray := tData.JSUint8Array()
+	context.Call("getBufferSubData", target, 0, uintArray)
+
+	sliceData := sliceToByteSlice(data)
+	js.CopyBytesToGo(sliceData, uintArray)
+}
+
 func DeleteBuffer(buffer Buffer) {
 	context.Call("deleteBuffer", js.Value(buffer))
 }
@@ -337,8 +364,7 @@ func TexSubImage2D(target, level, xoffset, yoffset, width, height, format, dtype
 		context.Call("texSubImage2D", target, level, xoffset, yoffset, width, height, format, dtype, uintArray)
 	case FLOAT:
 		// TODO: Optimize this with staging area
-		buffer := tData.ArrayBuffer()
-		floatArray := js.Global().Get("Float32Array").New(buffer)
+		floatArray := js.Global().Get("Float32Array").New(tData.ArrayBuffer())
 		context.Call("texSubImage2D", target, level, xoffset, yoffset, width, height, format, dtype, floatArray)
 	default:
 		panic(fmt.Errorf("unsupported dtype: %d", dtype))
