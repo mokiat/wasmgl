@@ -33,5 +33,6 @@ func InitFromCanvas(htmlCanvas js.Value) error {
 	if context.IsNull() {
 		return fmt.Errorf("could not acquire webgl2 context")
 	}
+	initFunctions(context)
 	return nil
 }
