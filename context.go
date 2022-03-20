@@ -7,11 +7,6 @@ import (
 	"syscall/js"
 )
 
-// References on WebGL1 and WebGL2 API:
-// https://www.khronos.org/registry/webgl/specs/latest/2.0/
-// https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext
-// https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext
-
 var context js.Value
 
 // InitFromID initializes webgl context and bindings
@@ -38,6 +33,5 @@ func InitFromCanvas(htmlCanvas js.Value) error {
 	if context.IsNull() {
 		return fmt.Errorf("could not acquire webgl2 context")
 	}
-	initConstants(context)
 	return nil
 }

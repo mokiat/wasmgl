@@ -7,6 +7,12 @@ import (
 	"syscall/js"
 )
 
+// References on WebGL1 and WebGL2 API:
+// https://www.khronos.org/registry/webgl/specs/latest/1.0/
+// https://www.khronos.org/registry/webgl/specs/latest/2.0/
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext
+
 func GetExtension(name string) interface{} {
 	result := context.Call("getExtension", name)
 	if result.IsNull() {
