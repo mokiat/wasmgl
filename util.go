@@ -3,10 +3,7 @@
 package wasmgl
 
 import (
-	"fmt"
-	"reflect"
 	"syscall/js"
-	"unsafe"
 )
 
 // TODO: Use one big ArrayBuffer for all data transfers instead of allocating
@@ -23,14 +20,14 @@ type typedSlice struct {
 }
 
 func (s *typedSlice) JSUint8Array() js.Value {
-	byteSlice := sliceToByteSlice(s.data)
+	byteSlice := asByteSlice(s.data)
 	typedArray := js.Global().Get("Uint8Array").New(len(byteSlice))
 	js.CopyBytesToJS(typedArray, byteSlice)
 	return typedArray
 }
 
 func (s *typedSlice) ArrayBuffer() js.Value {
-	byteSlice := sliceToByteSlice(s.data)
+	byteSlice := asByteSlice(s.data)
 	buffer := js.Global().Get("ArrayBuffer").New(len(byteSlice))
 
 	typedArray := js.Global().Get("Uint8Array").New(buffer)
@@ -41,22 +38,4 @@ func (s *typedSlice) ArrayBuffer() js.Value {
 
 func (s *typedSlice) Release() {
 	s.data = nil
-}
-
-// sliceToByteSlice is a workaround due to:
-// https://github.com/golang/go/issues/32402
-// https://github.com/golang/go/issues/31980
-func sliceToByteSlice(data interface{}) []byte {
-	switch data := data.(type) {
-	case []byte:
-		return data
-	case []float32:
-		// TODO: Consider unsafe.Slice instead
-		header := (*reflect.SliceHeader)(unsafe.Pointer(&data))
-		header.Len *= 4
-		header.Cap *= 4
-		return *(*[]byte)(unsafe.Pointer(header))
-	default:
-		panic(fmt.Errorf("unknown slice type %T", data))
-	}
 }

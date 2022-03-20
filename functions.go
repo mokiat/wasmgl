@@ -512,7 +512,7 @@ func GetBufferSubData(target, srcOffset int, data interface{}) {
 	uintArray := tData.JSUint8Array()
 	fnGetBufferSubData.Invoke(target, 0, uintArray)
 
-	sliceData := sliceToByteSlice(data)
+	sliceData := asByteSlice(data)
 	js.CopyBytesToGo(sliceData, uintArray)
 }
 
