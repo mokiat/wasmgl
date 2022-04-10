@@ -22,6 +22,7 @@ var (
 	fnBindBuffer               js.Value
 	fnBindFramebuffer          js.Value
 	fnBindTexture              js.Value
+	fnBlendColor               js.Value
 	fnBlendEquationSeparate    js.Value
 	fnBlendFunc                js.Value
 	fnBlendFuncSeparate        js.Value
@@ -54,6 +55,7 @@ var (
 	fnEnable                   js.Value
 	fnEnableVertexAttribArray  js.Value
 	fnFramebufferTexture2D     js.Value
+	fnFrontFace                js.Value
 	fnGenerateMipmap           js.Value
 	fnGetAttribLocation        js.Value
 	fnGetError                 js.Value
@@ -62,10 +64,12 @@ var (
 	fnGetShaderParameter       js.Value
 	fnGetShaderInfoLog         js.Value
 	fnGetUniformLocation       js.Value
+	fnLineWidth                js.Value
 	fnLinkProgram              js.Value
 	fnScissor                  js.Value
 	fnShaderSource             js.Value
 	fnStencilFuncSeparate      js.Value
+	fnStencilMaskSeparate      js.Value
 	fnStencilOpSeparate        js.Value
 	fnTexParameteri            js.Value
 	fnUniform1f                js.Value
@@ -91,17 +95,20 @@ var (
 	// (https://www.khronos.org/registry/webgl/specs/latest/2.0/)
 	// (https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext)
 
-	fnGetBufferSubData  js.Value
-	fnBlitFramebuffer   js.Value
-	fnTexStorage2D      js.Value
-	fnTexSubImage3D     js.Value
-	fnDrawBuffers       js.Value
-	fnFenceSync         js.Value
-	fnDeleteSync        js.Value
-	fnClientWaitSync    js.Value
-	fnCreateVertexArray js.Value
-	fnDeleteVertexArray js.Value
-	fnBindVertexArray   js.Value
+	fnGetBufferSubData      js.Value
+	fnBlitFramebuffer       js.Value
+	fnInvalidateFramebuffer js.Value
+	fnTexStorage2D          js.Value
+	fnTexSubImage3D         js.Value
+	fnDrawArraysInstanced   js.Value
+	fnDrawElementsInstanced js.Value
+	fnDrawBuffers           js.Value
+	fnFenceSync             js.Value
+	fnDeleteSync            js.Value
+	fnClientWaitSync        js.Value
+	fnCreateVertexArray     js.Value
+	fnDeleteVertexArray     js.Value
+	fnBindVertexArray       js.Value
 )
 
 func initFunctions(gl js.Value) {
@@ -111,6 +118,7 @@ func initFunctions(gl js.Value) {
 	fnBindBuffer = getFunction(gl, "bindBuffer")
 	fnBindFramebuffer = getFunction(gl, "bindFramebuffer")
 	fnBindTexture = getFunction(gl, "bindTexture")
+	fnBlendColor = getFunction(gl, "blendColor")
 	fnBlendEquationSeparate = getFunction(gl, "blendEquationSeparate")
 	fnBlendFunc = getFunction(gl, "blendFunc")
 	fnBlendFuncSeparate = getFunction(gl, "blendFuncSeparate")
@@ -143,6 +151,7 @@ func initFunctions(gl js.Value) {
 	fnEnable = getFunction(gl, "enable")
 	fnEnableVertexAttribArray = getFunction(gl, "enableVertexAttribArray")
 	fnFramebufferTexture2D = getFunction(gl, "framebufferTexture2D")
+	fnFrontFace = getFunction(gl, "frontFace")
 	fnGenerateMipmap = getFunction(gl, "generateMipmap")
 	fnGetAttribLocation = getFunction(gl, "getAttribLocation")
 	fnGetError = getFunction(gl, "getError")
@@ -151,10 +160,12 @@ func initFunctions(gl js.Value) {
 	fnGetShaderParameter = getFunction(gl, "getShaderParameter")
 	fnGetShaderInfoLog = getFunction(gl, "getShaderInfoLog")
 	fnGetUniformLocation = getFunction(gl, "getUniformLocation")
+	fnLineWidth = getFunction(gl, "lineWidth")
 	fnLinkProgram = getFunction(gl, "linkProgram")
 	fnScissor = getFunction(gl, "scissor")
 	fnShaderSource = getFunction(gl, "shaderSource")
 	fnStencilFuncSeparate = getFunction(gl, "stencilFuncSeparate")
+	fnStencilMaskSeparate = getFunction(gl, "stencilMaskSeparate")
 	fnStencilOpSeparate = getFunction(gl, "stencilOpSeparate")
 	fnTexParameteri = getFunction(gl, "texParameteri")
 	fnUniform1f = getFunction(gl, "uniform1f")
@@ -178,8 +189,11 @@ func initFunctions(gl js.Value) {
 
 	fnGetBufferSubData = getFunction(gl, "getBufferSubData")
 	fnBlitFramebuffer = getFunction(gl, "blitFramebuffer")
+	fnInvalidateFramebuffer = getFunction(gl, "invalidateFramebuffer")
 	fnTexStorage2D = getFunction(gl, "texStorage2D")
 	fnTexSubImage3D = getFunction(gl, "texSubImage3D")
+	fnDrawArraysInstanced = getFunction(gl, "drawArraysInstanced")
+	fnDrawElementsInstanced = getFunction(gl, "drawElementsInstanced")
 	fnDrawBuffers = getFunction(gl, "drawBuffers")
 	fnFenceSync = getFunction(gl, "fenceSync")
 	fnDeleteSync = getFunction(gl, "deleteSync")
@@ -226,6 +240,10 @@ func BindFramebuffer(target int, framebuffer Framebuffer) {
 
 func BindTexture(target int, texture Texture) {
 	fnBindTexture.Invoke(target, js.Value(texture))
+}
+
+func BlendColor(red, green, blue, alpha float32) {
+	fnBlendColor.Invoke(red, green, blue, alpha)
 }
 
 func BlendEquationSeparate(modeRGB, modeAlpha int) {
@@ -356,6 +374,10 @@ func FramebufferTexture2D(target, attachment, texTarget int, texture Texture, le
 	fnFramebufferTexture2D.Invoke(target, attachment, texTarget, js.Value(texture), level)
 }
 
+func FrontFace(mode int) {
+	fnFrontFace.Invoke(mode)
+}
+
 func GenerateMipmap(target int) {
 	fnGenerateMipmap.Invoke(target)
 }
@@ -388,6 +410,10 @@ func GetUniformLocation(program Program, name string) UniformLocation {
 	return UniformLocation(fnGetUniformLocation.Invoke(js.Value(program), name))
 }
 
+func LineWidth(width float32) {
+	fnLineWidth.Invoke(width)
+}
+
 func LinkProgram(program Program) {
 	fnLinkProgram.Invoke(js.Value(program))
 }
@@ -402,6 +428,10 @@ func ShaderSource(shader Shader, source string) {
 
 func StencilFuncSeparate(face, fun, ref, mask int) {
 	fnStencilFuncSeparate.Invoke(face, fun, ref, mask)
+}
+
+func StencilMaskSeparate(face, mask int) {
+	fnStencilMaskSeparate.Invoke(face, mask)
 }
 
 func StencilOpSeparate(face, fail, zfail, zpass int) {
@@ -503,6 +533,12 @@ func BlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mas
 	fnBlitFramebuffer.Invoke(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter)
 }
 
+func InvalidateFramebuffer(target int, attachments []int) {
+	ensureSliceSize(len(attachments))
+	view := pushSliceData(attachments, 0)
+	fnInvalidateFramebuffer.Invoke(target, view)
+}
+
 func TexStorage2D(target, levels, internalFormat, width, height int) {
 	fnTexStorage2D.Invoke(target, levels, internalFormat, width, height)
 }
@@ -510,6 +546,14 @@ func TexStorage2D(target, levels, internalFormat, width, height int) {
 func TexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, dtype int, data []byte) {
 	pushBufferData(data)
 	fnTexSubImage3D.Invoke(target, level, xoffset, yoffset, zoffset, width, height, depth, format, dtype, uint8Array, 0)
+}
+
+func DrawArraysInstanced(mode, first, count, instanceCount int) {
+	fnDrawArraysInstanced.Invoke(mode, first, count, instanceCount)
+}
+
+func DrawElementsInstanced(mode, count, pType, offset, instanceCount int) {
+	fnDrawElementsInstanced.Invoke(mode, count, pType, offset, instanceCount)
 }
 
 func DrawBuffers(buffers []int) {
