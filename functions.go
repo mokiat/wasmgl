@@ -103,6 +103,10 @@ var (
 	fnDrawArraysInstanced   js.Value
 	fnDrawElementsInstanced js.Value
 	fnDrawBuffers           js.Value
+	fnClearBufferfv         js.Value
+	fnClearBufferiv         js.Value
+	fnClearBufferuiv        js.Value
+	fnClearBufferfi         js.Value
 	fnFenceSync             js.Value
 	fnDeleteSync            js.Value
 	fnClientWaitSync        js.Value
@@ -195,6 +199,10 @@ func initFunctions(gl js.Value) {
 	fnDrawArraysInstanced = getFunction(gl, "drawArraysInstanced")
 	fnDrawElementsInstanced = getFunction(gl, "drawElementsInstanced")
 	fnDrawBuffers = getFunction(gl, "drawBuffers")
+	fnClearBufferfv = getFunction(gl, "clearBufferfv")
+	fnClearBufferiv = getFunction(gl, "clearBufferiv")
+	fnClearBufferuiv = getFunction(gl, "clearBufferuiv")
+	fnClearBufferfi = getFunction(gl, "clearBufferfi")
 	fnFenceSync = getFunction(gl, "fenceSync")
 	fnDeleteSync = getFunction(gl, "deleteSync")
 	fnClientWaitSync = getFunction(gl, "clientWaitSync")
@@ -486,9 +494,13 @@ func Viewport(x, y, width, height int) {
 	fnViewport.Invoke(x, y, width, height)
 }
 
-func BufferData(target int, data []byte, usage int) {
-	pushBufferData(data)
-	fnBufferData.Invoke(target, uint8Array, usage, 0, len(data))
+func BufferData(target, size int, data []byte, usage int) {
+	if data != nil {
+		pushBufferData(data)
+		fnBufferData.Invoke(target, uint8Array, usage, 0, len(data))
+	} else {
+		fnBufferData.Invoke(target, size, usage)
+	}
 }
 
 func BufferSubData(target, dstOffset int, data []byte) {
@@ -522,7 +534,7 @@ func UniformMatrix4fv(location UniformLocation, transpose bool, data []float32) 
 	fnUniformMatrix4fv.Invoke(js.Value(location), transpose, float32Array, 0, len(data))
 }
 
-func GetBufferSubData(target, srcOffset int, data interface{}) {
+func GetBufferSubData[T DataTypes](target, srcOffset int, data []T) {
 	length := byteSize(data)
 	ensureBufferSize(length)
 	fnGetBufferSubData.Invoke(target, 0, uint8Array, 0, length)
@@ -560,6 +572,25 @@ func DrawBuffers(buffers []int) {
 	ensureSliceSize(len(buffers))
 	view := pushSliceData(buffers, 0)
 	fnDrawBuffers.Invoke(view)
+}
+
+func ClearBufferfv(buffer, drawBuffer int, values []float32) {
+	pushBufferData(values)
+	fnClearBufferfv.Invoke(buffer, drawBuffer, float32Array)
+}
+
+func ClearBufferiv(buffer, drawBuffer int, values []int32) {
+	pushBufferData(values)
+	fnClearBufferiv.Invoke(buffer, drawBuffer, int32Array)
+}
+
+func ClearBufferuiv(buffer, drawBuffer int, values []uint32) {
+	pushBufferData(values)
+	fnClearBufferuiv.Invoke(buffer, drawBuffer, uint32Array)
+}
+
+func ClearBufferfi(buffer, drawBuffer int, depth float32, stencil int32) {
+	fnClearBufferfi.Invoke(buffer, drawBuffer, depth, stencil)
 }
 
 func FenceSync(condition, flags int) Sync {
