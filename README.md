@@ -3,22 +3,24 @@
 This project aims to expose the WebGL2 API as Go API that can be used
 in wasm projects.
 
-> **Warning:** The project is in early development and the API is likely to change in backward incompatible ways!
+> **Warning:** The project is in early development and the API is likely to
+> change in backward incompatible ways!
 
 ## Getting Started
 
 You need to add the project as a dependency.
 
 ```
-go get github.com/mokiat/wasmgl@master
+go get github.com/mokiat/wasmgl@latest
 ```
 
-The implementation uses `syscall/js` calls and as such requires that client applications are complied with `GOOS=js` and `GOARCH=wasm` options.
+The implementation uses `syscall/js` calls and as such requires that client
+applications are compiled with the `GOOS=js` and `GOARCH=wasm` options.
 
 If you are unfamiliar with how Go and WASM works, then you should have a look at
 the official [WebAssembly with Go documentation](https://github.com/golang/go/wiki/WebAssembly).
 
-Following is an example Go code that clears the canvas with the color green.
+Following is an example Go code that clears the canvas with a green color.
 
 ```go
 package main
@@ -30,8 +32,9 @@ import (
 )
 
 func main() {
-	err := wasmgl.InitFromID("glcanvas");
-	if err != nil {
+	const canvasElementID = "glcanvas"
+
+	if err := wasmgl.InitFromID(canvasElementID); err != nil {
 		log.Fatalf("Failed to initialize wasmgl: %v", err)
 	}
 

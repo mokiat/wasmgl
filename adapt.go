@@ -3,7 +3,6 @@
 package wasmgl
 
 import (
-	"fmt"
 	"runtime"
 	"syscall/js"
 	"unsafe"
@@ -17,10 +16,17 @@ var (
 	bufferSize   int
 	arrayBuffer  js.Value
 	uint8Array   js.Value
+	int32Array   js.Value
+	uint32Array  js.Value
 	float32Array js.Value
 
 	interfaceSlice []interface{}
 )
+
+// DataTypes represents allowed data slice types.
+type DataTypes interface {
+	~int8 | ~uint8 | ~int16 | ~uint16 | ~int32 | ~uint32 | ~float32 | ~float64
+}
 
 // ensureBufferSize ensures that the global ArrayBuffer has a size
 // that is equal or larger to the specified size.
@@ -29,6 +35,8 @@ func ensureBufferSize(size int) {
 		bufferSize = size
 		arrayBuffer = js.Global().Get("ArrayBuffer").New(size)
 		uint8Array = js.Global().Get("Uint8Array").New(arrayBuffer)
+		int32Array = js.Global().Get("Int32Array").New(arrayBuffer)
+		uint32Array = js.Global().Get("Uint32Array").New(arrayBuffer)
 		float32Array = js.Global().Get("Float32Array").New(arrayBuffer)
 	}
 }
@@ -38,7 +46,7 @@ func ensureBufferSize(size int) {
 //
 // This function will panic if data cannot be converted to []byte
 // through the asByteSlice function.
-func pushBufferData(data interface{}) {
+func pushBufferData[T DataTypes](data []T) {
 	byteData := asByteSlice(data)
 	ensureBufferSize(len(byteData))
 	js.CopyBytesToJS(uint8Array, byteData)
@@ -51,7 +59,7 @@ func pushBufferData(data interface{}) {
 //
 // This function will panic if data cannot be converted to []byte
 // through the asByteSlice function.
-func popBufferData(data interface{}) {
+func popBufferData[T DataTypes](data []T) {
 	byteData := asByteSlice(data)
 	js.CopyBytesToGo(byteData, uint8Array)
 	runtime.KeepAlive(data)
@@ -65,44 +73,27 @@ func getFunction(target js.Value, name string) js.Value {
 }
 
 // asByteSlice returns a []byte representation for the
-// specified arbitrary data type.
-// It panics if the passed value cannot be represented as
-// byte slice.
+// specified arbitrary slice type.
 //
 // This utility function is related to the following issues:
 // https://github.com/golang/go/issues/32402
 // https://github.com/golang/go/issues/31980
-func asByteSlice(data interface{}) []byte {
-	switch data := data.(type) {
-	case []uint8:
-		return data
-	case []uint16:
-		return unsafe.Slice((*byte)(unsafe.Pointer(&data[0])), len(data)*2)
-	case []float32:
-		return unsafe.Slice((*byte)(unsafe.Pointer(&data[0])), len(data)*4)
-	case []float64:
-		return unsafe.Slice((*byte)(unsafe.Pointer(&data[0])), len(data)*8)
-	default:
-		panic(fmt.Errorf("cannot convert type %T to []byte", data))
+func asByteSlice[T DataTypes](data []T) []byte {
+	if len(data) == 0 {
+		return nil
 	}
+	dataSize := byteSize(data)
+	return unsafe.Slice((*byte)(unsafe.Pointer(&data[0])), dataSize)
 }
 
 // byteSize returns the number of bytes that would be
 // needed to represent data once it is converted to a
-// []byte slice through asByteSlice.
-func byteSize(data interface{}) int {
-	switch data := data.(type) {
-	case []uint8:
-		return len(data)
-	case []uint16:
-		return len(data) * 2
-	case []float32:
-		return len(data) * 4
-	case []float64:
-		return len(data) * 8
-	default:
-		panic(fmt.Errorf("cannot convert type %T to []byte", data))
+// byte slice through asByteSlice.
+func byteSize[T DataTypes](data []T) int {
+	if len(data) == 0 {
+		return 0
 	}
+	return len(data) * int(unsafe.Sizeof(data[0]))
 }
 
 // ensureSliceSize ensures that the global interfaceSlice has
@@ -121,22 +112,10 @@ func ensureSliceSize(size int) {
 //
 // The offset parameter allows one to get two or more views over the
 // global interfaceSlice if needed.
-func pushSliceData(data interface{}, offset int) []interface{} {
-	// TODO: Implement this through generics
-	switch data := data.(type) {
-	case []byte:
-		ensureSliceSize(offset + len(data))
-		for i, v := range data {
-			interfaceSlice[i+offset] = v
-		}
-		return interfaceSlice[offset : offset+len(data)]
-	case []int:
-		ensureSliceSize(offset + len(data))
-		for i, v := range data {
-			interfaceSlice[i+offset] = v
-		}
-		return interfaceSlice[offset : offset+len(data)]
-	default:
-		panic(fmt.Errorf("cannot convert type %T to []interface{}", data))
+func pushSliceData[T any](data []T, offset int) []interface{} {
+	ensureSliceSize(offset + len(data))
+	for i, v := range data {
+		interfaceSlice[i+offset] = v
 	}
+	return interfaceSlice[offset : offset+len(data)]
 }
