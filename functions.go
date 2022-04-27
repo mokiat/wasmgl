@@ -110,6 +110,7 @@ var (
 	fnFenceSync             js.Value
 	fnDeleteSync            js.Value
 	fnClientWaitSync        js.Value
+	fnGetSyncParameter      js.Value
 	fnCreateVertexArray     js.Value
 	fnDeleteVertexArray     js.Value
 	fnBindVertexArray       js.Value
@@ -206,6 +207,7 @@ func initFunctions(gl js.Value) {
 	fnFenceSync = getFunction(gl, "fenceSync")
 	fnDeleteSync = getFunction(gl, "deleteSync")
 	fnClientWaitSync = getFunction(gl, "clientWaitSync")
+	fnGetSyncParameter = getFunction(gl, "getSyncParameter")
 	fnCreateVertexArray = getFunction(gl, "createVertexArray")
 	fnDeleteVertexArray = getFunction(gl, "deleteVertexArray")
 	fnBindVertexArray = getFunction(gl, "bindVertexArray")
@@ -603,6 +605,10 @@ func DeleteSync(sync Sync) {
 
 func ClientWaitSync(sync Sync, flags, timeout int) int {
 	return fnClientWaitSync.Invoke(js.Value(sync), flags, timeout).Int()
+}
+
+func GetSyncParameter(sync Sync, pname int) int {
+	return fnGetSyncParameter.Invoke(js.Value(sync), pname).Int()
 }
 
 func CreateVertexArray() VertexArray {
