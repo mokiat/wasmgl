@@ -524,6 +524,8 @@ func TexSubImage2D(target, level, xoffset, yoffset, width, height, format, dtype
 	switch dtype {
 	case UNSIGNED_BYTE:
 		fnTexSubImage2D.Invoke(target, level, xoffset, yoffset, width, height, format, dtype, uint8Array, 0)
+	case HALF_FLOAT:
+		fnTexSubImage2D.Invoke(target, level, xoffset, yoffset, width, height, format, dtype, uint16Array, 0)
 	case FLOAT:
 		fnTexSubImage2D.Invoke(target, level, xoffset, yoffset, width, height, format, dtype, float32Array, 0)
 	default:

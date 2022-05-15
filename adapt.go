@@ -16,6 +16,7 @@ var (
 	bufferSize   int
 	arrayBuffer  js.Value
 	uint8Array   js.Value
+	uint16Array  js.Value
 	int32Array   js.Value
 	uint32Array  js.Value
 	float32Array js.Value
@@ -35,6 +36,7 @@ func ensureBufferSize(size int) {
 		bufferSize = size
 		arrayBuffer = js.Global().Get("ArrayBuffer").New(size)
 		uint8Array = js.Global().Get("Uint8Array").New(arrayBuffer)
+		uint16Array = js.Global().Get("Uint16Array").New(arrayBuffer)
 		int32Array = js.Global().Get("Int32Array").New(arrayBuffer)
 		uint32Array = js.Global().Get("Uint32Array").New(arrayBuffer)
 		float32Array = js.Global().Get("Float32Array").New(arrayBuffer)
