@@ -54,6 +54,8 @@ var (
 	fnDrawElements             js.Value
 	fnEnable                   js.Value
 	fnEnableVertexAttribArray  js.Value
+	fnFinish                   js.Value
+	fnFlush                    js.Value
 	fnFramebufferTexture2D     js.Value
 	fnFrontFace                js.Value
 	fnGenerateMipmap           js.Value
@@ -155,6 +157,8 @@ func initFunctions(gl js.Value) {
 	fnDrawElements = getFunction(gl, "drawElements")
 	fnEnable = getFunction(gl, "enable")
 	fnEnableVertexAttribArray = getFunction(gl, "enableVertexAttribArray")
+	fnFinish = getFunction(gl, "finish")
+	fnFlush = getFunction(gl, "flush")
 	fnFramebufferTexture2D = getFunction(gl, "framebufferTexture2D")
 	fnFrontFace = getFunction(gl, "frontFace")
 	fnGenerateMipmap = getFunction(gl, "generateMipmap")
@@ -378,6 +382,14 @@ func Enable(cap int) {
 
 func EnableVertexAttribArray(index int) {
 	fnEnableVertexAttribArray.Invoke(index)
+}
+
+func Finish() {
+	fnFinish.Invoke()
+}
+
+func Flush() {
+	fnFlush.Invoke()
 }
 
 func FramebufferTexture2D(target, attachment, texTarget int, texture Texture, level int) {
