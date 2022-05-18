@@ -54,6 +54,8 @@ var (
 	fnDrawElements             js.Value
 	fnEnable                   js.Value
 	fnEnableVertexAttribArray  js.Value
+	fnFinish                   js.Value
+	fnFlush                    js.Value
 	fnFramebufferTexture2D     js.Value
 	fnFrontFace                js.Value
 	fnGenerateMipmap           js.Value
@@ -155,6 +157,8 @@ func initFunctions(gl js.Value) {
 	fnDrawElements = getFunction(gl, "drawElements")
 	fnEnable = getFunction(gl, "enable")
 	fnEnableVertexAttribArray = getFunction(gl, "enableVertexAttribArray")
+	fnFinish = getFunction(gl, "finish")
+	fnFlush = getFunction(gl, "flush")
 	fnFramebufferTexture2D = getFunction(gl, "framebufferTexture2D")
 	fnFrontFace = getFunction(gl, "frontFace")
 	fnGenerateMipmap = getFunction(gl, "generateMipmap")
@@ -380,6 +384,14 @@ func EnableVertexAttribArray(index int) {
 	fnEnableVertexAttribArray.Invoke(index)
 }
 
+func Finish() {
+	fnFinish.Invoke()
+}
+
+func Flush() {
+	fnFlush.Invoke()
+}
+
 func FramebufferTexture2D(target, attachment, texTarget int, texture Texture, level int) {
 	fnFramebufferTexture2D.Invoke(target, attachment, texTarget, js.Value(texture), level)
 }
@@ -524,6 +536,8 @@ func TexSubImage2D(target, level, xoffset, yoffset, width, height, format, dtype
 	switch dtype {
 	case UNSIGNED_BYTE:
 		fnTexSubImage2D.Invoke(target, level, xoffset, yoffset, width, height, format, dtype, uint8Array, 0)
+	case HALF_FLOAT:
+		fnTexSubImage2D.Invoke(target, level, xoffset, yoffset, width, height, format, dtype, uint16Array, 0)
 	case FLOAT:
 		fnTexSubImage2D.Invoke(target, level, xoffset, yoffset, width, height, format, dtype, float32Array, 0)
 	default:
