@@ -60,6 +60,7 @@ var (
 	fnFrontFace                js.Value
 	fnGenerateMipmap           js.Value
 	fnGetAttribLocation        js.Value
+	fnGetParameter             js.Value
 	fnGetError                 js.Value
 	fnGetProgramParameter      js.Value
 	fnGetProgramInfoLog        js.Value
@@ -163,6 +164,7 @@ func initFunctions(gl js.Value) {
 	fnFrontFace = getFunction(gl, "frontFace")
 	fnGenerateMipmap = getFunction(gl, "generateMipmap")
 	fnGetAttribLocation = getFunction(gl, "getAttribLocation")
+	fnGetParameter = getFunction(gl, "getParameter")
 	fnGetError = getFunction(gl, "getError")
 	fnGetProgramParameter = getFunction(gl, "getProgramParameter")
 	fnGetProgramInfoLog = getFunction(gl, "getProgramInfoLog")
@@ -406,6 +408,10 @@ func GenerateMipmap(target int) {
 
 func GetAttribLocation(program Program, name string) AttribLocation {
 	return AttribLocation(fnGetAttribLocation.Invoke(js.Value(program), name))
+}
+
+func GetParameter(name int) Result {
+	return Result(fnGetParameter.Invoke(name))
 }
 
 func GetError() int {
