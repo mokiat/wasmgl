@@ -103,6 +103,7 @@ var (
 	fnInvalidateFramebuffer js.Value
 	fnTexStorage2D          js.Value
 	fnTexSubImage3D         js.Value
+	fnVertexAttribIPointer  js.Value
 	fnDrawArraysInstanced   js.Value
 	fnDrawElementsInstanced js.Value
 	fnDrawBuffers           js.Value
@@ -203,6 +204,7 @@ func initFunctions(gl js.Value) {
 	fnInvalidateFramebuffer = getFunction(gl, "invalidateFramebuffer")
 	fnTexStorage2D = getFunction(gl, "texStorage2D")
 	fnTexSubImage3D = getFunction(gl, "texSubImage3D")
+	fnVertexAttribIPointer = getFunction(gl, "vertexAttribIPointer")
 	fnDrawArraysInstanced = getFunction(gl, "drawArraysInstanced")
 	fnDrawElementsInstanced = getFunction(gl, "drawElementsInstanced")
 	fnDrawBuffers = getFunction(gl, "drawBuffers")
@@ -580,6 +582,10 @@ func TexStorage2D(target, levels, internalFormat, width, height int) {
 func TexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, dtype int, data []byte) {
 	pushBufferData(data)
 	fnTexSubImage3D.Invoke(target, level, xoffset, yoffset, zoffset, width, height, depth, format, dtype, uint8Array, 0)
+}
+
+func VertexAttribIPointer(index, size, dtype, stride, offset int) {
+	fnVertexAttribIPointer.Invoke(index, size, dtype, stride, offset)
 }
 
 func DrawArraysInstanced(mode, first, count, instanceCount int) {
