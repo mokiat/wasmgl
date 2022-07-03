@@ -115,6 +115,10 @@ var (
 	fnDeleteSync            js.Value
 	fnClientWaitSync        js.Value
 	fnGetSyncParameter      js.Value
+	fnBindBufferBase        js.Value
+	fnBindBufferRange       js.Value
+	fnGetUniformBlockIndex  js.Value
+	fnUniformBlockBinding   js.Value
 	fnCreateVertexArray     js.Value
 	fnDeleteVertexArray     js.Value
 	fnBindVertexArray       js.Value
@@ -216,6 +220,10 @@ func initFunctions(gl js.Value) {
 	fnDeleteSync = getFunction(gl, "deleteSync")
 	fnClientWaitSync = getFunction(gl, "clientWaitSync")
 	fnGetSyncParameter = getFunction(gl, "getSyncParameter")
+	fnBindBufferBase = getFunction(gl, "bindBufferBase")
+	fnBindBufferRange = getFunction(gl, "bindBufferRange")
+	fnGetUniformBlockIndex = getFunction(gl, "getUniformBlockIndex")
+	fnUniformBlockBinding = getFunction(gl, "uniformBlockBinding")
 	fnCreateVertexArray = getFunction(gl, "createVertexArray")
 	fnDeleteVertexArray = getFunction(gl, "deleteVertexArray")
 	fnBindVertexArray = getFunction(gl, "bindVertexArray")
@@ -635,6 +643,22 @@ func ClientWaitSync(sync Sync, flags, timeout int) int {
 
 func GetSyncParameter(sync Sync, pname int) int {
 	return fnGetSyncParameter.Invoke(js.Value(sync), pname).Int()
+}
+
+func BindBufferBase(target, index int, buffer Buffer) {
+	fnBindBufferBase.Invoke(target, index, js.Value(buffer))
+}
+
+func BindBufferRange(target, index int, buffer Buffer, offset, size int) {
+	fnBindBufferRange.Invoke(target, index, js.Value(buffer), offset, size)
+}
+
+func GetUniformBlockIndex(program Program, name string) int {
+	return fnGetUniformBlockIndex.Invoke(js.Value(program), name).Int()
+}
+
+func UniformBlockBinding(program Program, index, binding int) {
+	fnUniformBlockBinding.Invoke(js.Value(program), index, binding)
 }
 
 func CreateVertexArray() VertexArray {
