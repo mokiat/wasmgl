@@ -33,6 +33,17 @@ type (
 	GLfloat = float32
 	// GLclampf represents the GLclampf type from the specification.
 	GLclampf = float32
+	// GLint64 represents the GLint64 type from the specification.
+	GLint64 = int64
+	// GLuint64 represents the GLuint64 type from the specification.
+	GLuint64 = uint64
+
+	// Float32List represents the Float32List type from the specification.
+	Float32List = []float32
+	// Int32List represents the Int32List type from the specification.
+	Int32List = []int32
+	// Uint32List represents the Uint32List type from the specification.
+	Uint32List = []uint32
 )
 
 // NilBuffer equals the zero Buffer.
