@@ -416,8 +416,8 @@ func GenerateMipmap(target int) {
 	fnGenerateMipmap.Invoke(target)
 }
 
-func GetAttribLocation(program Program, name string) AttribLocation {
-	return AttribLocation(fnGetAttribLocation.Invoke(js.Value(program), name))
+func GetAttribLocation(program Program, name string) GLint {
+	return GLint(fnGetAttribLocation.Invoke(js.Value(program), name).Int())
 }
 
 func GetParameter(name int) Result {
