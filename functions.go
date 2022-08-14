@@ -60,6 +60,7 @@ var (
 	fnFrontFace                js.Value
 	fnGenerateMipmap           js.Value
 	fnGetAttribLocation        js.Value
+	fnGetParameter             js.Value
 	fnGetError                 js.Value
 	fnGetProgramParameter      js.Value
 	fnGetProgramInfoLog        js.Value
@@ -102,6 +103,7 @@ var (
 	fnInvalidateFramebuffer js.Value
 	fnTexStorage2D          js.Value
 	fnTexSubImage3D         js.Value
+	fnVertexAttribIPointer  js.Value
 	fnDrawArraysInstanced   js.Value
 	fnDrawElementsInstanced js.Value
 	fnDrawBuffers           js.Value
@@ -113,6 +115,10 @@ var (
 	fnDeleteSync            js.Value
 	fnClientWaitSync        js.Value
 	fnGetSyncParameter      js.Value
+	fnBindBufferBase        js.Value
+	fnBindBufferRange       js.Value
+	fnGetUniformBlockIndex  js.Value
+	fnUniformBlockBinding   js.Value
 	fnCreateVertexArray     js.Value
 	fnDeleteVertexArray     js.Value
 	fnBindVertexArray       js.Value
@@ -163,6 +169,7 @@ func initFunctions(gl js.Value) {
 	fnFrontFace = getFunction(gl, "frontFace")
 	fnGenerateMipmap = getFunction(gl, "generateMipmap")
 	fnGetAttribLocation = getFunction(gl, "getAttribLocation")
+	fnGetParameter = getFunction(gl, "getParameter")
 	fnGetError = getFunction(gl, "getError")
 	fnGetProgramParameter = getFunction(gl, "getProgramParameter")
 	fnGetProgramInfoLog = getFunction(gl, "getProgramInfoLog")
@@ -201,6 +208,7 @@ func initFunctions(gl js.Value) {
 	fnInvalidateFramebuffer = getFunction(gl, "invalidateFramebuffer")
 	fnTexStorage2D = getFunction(gl, "texStorage2D")
 	fnTexSubImage3D = getFunction(gl, "texSubImage3D")
+	fnVertexAttribIPointer = getFunction(gl, "vertexAttribIPointer")
 	fnDrawArraysInstanced = getFunction(gl, "drawArraysInstanced")
 	fnDrawElementsInstanced = getFunction(gl, "drawElementsInstanced")
 	fnDrawBuffers = getFunction(gl, "drawBuffers")
@@ -212,6 +220,10 @@ func initFunctions(gl js.Value) {
 	fnDeleteSync = getFunction(gl, "deleteSync")
 	fnClientWaitSync = getFunction(gl, "clientWaitSync")
 	fnGetSyncParameter = getFunction(gl, "getSyncParameter")
+	fnBindBufferBase = getFunction(gl, "bindBufferBase")
+	fnBindBufferRange = getFunction(gl, "bindBufferRange")
+	fnGetUniformBlockIndex = getFunction(gl, "getUniformBlockIndex")
+	fnUniformBlockBinding = getFunction(gl, "uniformBlockBinding")
 	fnCreateVertexArray = getFunction(gl, "createVertexArray")
 	fnDeleteVertexArray = getFunction(gl, "deleteVertexArray")
 	fnBindVertexArray = getFunction(gl, "bindVertexArray")
@@ -236,7 +248,7 @@ func GetExtension(name string) interface{} {
 	return true
 }
 
-func ActiveTexture(texture int) {
+func ActiveTexture(texture GLenum) {
 	fnActiveTexture.Invoke(texture)
 }
 
@@ -244,55 +256,55 @@ func AttachShader(program Program, shader Shader) {
 	fnAttachShader.Invoke(js.Value(program), js.Value(shader))
 }
 
-func BindBuffer(target int, buffer Buffer) {
+func BindBuffer(target GLenum, buffer Buffer) {
 	fnBindBuffer.Invoke(target, js.Value(buffer))
 }
 
-func BindFramebuffer(target int, framebuffer Framebuffer) {
+func BindFramebuffer(target GLenum, framebuffer Framebuffer) {
 	fnBindFramebuffer.Invoke(target, js.Value(framebuffer))
 }
 
-func BindTexture(target int, texture Texture) {
+func BindTexture(target GLenum, texture Texture) {
 	fnBindTexture.Invoke(target, js.Value(texture))
 }
 
-func BlendColor(red, green, blue, alpha float32) {
+func BlendColor(red, green, blue, alpha GLclampf) {
 	fnBlendColor.Invoke(red, green, blue, alpha)
 }
 
-func BlendEquationSeparate(modeRGB, modeAlpha int) {
+func BlendEquationSeparate(modeRGB, modeAlpha GLenum) {
 	fnBlendEquationSeparate.Invoke(modeRGB, modeAlpha)
 }
 
-func BlendFunc(sfactor, dfactor int) {
+func BlendFunc(sfactor, dfactor GLenum) {
 	fnBlendFunc.Invoke(sfactor, dfactor)
 }
 
-func BlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha int) {
+func BlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha GLenum) {
 	fnBlendFuncSeparate.Invoke(srcRGB, dstRGB, srcAlpha, dstAlpha)
 }
 
-func CheckFramebufferStatus(target int) int {
-	return fnCheckFramebufferStatus.Invoke(target).Int()
+func CheckFramebufferStatus(target GLenum) GLenum {
+	return GLenum(fnCheckFramebufferStatus.Invoke(target).Int())
 }
 
-func Clear(mask int) {
+func Clear(mask GLbitfield) {
 	fnClear.Invoke(mask)
 }
 
-func ClearColor(r, g, b, a float32) {
+func ClearColor(r, g, b, a GLclampf) {
 	fnClearColor.Invoke(r, g, b, a)
 }
 
-func ClearDepth(depth float32) {
+func ClearDepth(depth GLclampf) {
 	fnClearDepth.Invoke(depth)
 }
 
-func ClearStencil(stencil int) {
+func ClearStencil(stencil GLint) {
 	fnClearStencil.Invoke(stencil)
 }
 
-func ColorMask(r, g, b, a bool) {
+func ColorMask(r, g, b, a GLboolean) {
 	fnColorMask.Invoke(r, g, b, a)
 }
 
@@ -300,7 +312,7 @@ func CompileShader(shader Shader) {
 	fnCompileShader.Invoke(js.Value(shader))
 }
 
-func CopyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height int) {
+func CopyTexSubImage2D(target GLenum, level, xoffset, yoffset, x, y GLint, width, height GLsizei) {
 	fnCopyTexSubImage2D.Invoke(target, level, xoffset, yoffset, x, y, width, height)
 }
 
@@ -316,7 +328,7 @@ func CreateProgram() Program {
 	return Program(fnCreateProgram.Invoke())
 }
 
-func CreateShader(shaderType int) Shader {
+func CreateShader(shaderType GLenum) Shader {
 	return Shader(fnCreateShader.Invoke(shaderType))
 }
 
@@ -324,7 +336,7 @@ func CreateTexture() Texture {
 	return Texture(fnCreateTexture.Invoke())
 }
 
-func CullFace(mode int) {
+func CullFace(mode GLenum) {
 	fnCullFace.Invoke(mode)
 }
 
@@ -348,11 +360,11 @@ func DeleteTexture(texture Texture) {
 	fnDeleteTexture.Invoke(js.Value(texture))
 }
 
-func DepthFunc(fn int) {
+func DepthFunc(fn GLenum) {
 	fnDepthFunc.Invoke(fn)
 }
 
-func DepthMask(mask bool) {
+func DepthMask(mask GLboolean) {
 	fnDepthMask.Invoke(mask)
 }
 
@@ -360,27 +372,27 @@ func DetachShader(program Program, shader Shader) {
 	fnDetachShader.Invoke(js.Value(program), js.Value(shader))
 }
 
-func Disable(cap int) {
+func Disable(cap GLenum) {
 	fnDisable.Invoke(cap)
 }
 
-func DisableVertexAttribArray(index int) {
+func DisableVertexAttribArray(index GLuint) {
 	fnDisableVertexAttribArray.Invoke(index)
 }
 
-func DrawArrays(mode, first, count int) {
+func DrawArrays(mode GLenum, first GLint, count GLsizei) {
 	fnDrawArrays.Invoke(mode, first, count)
 }
 
-func DrawElements(mode, count, dtype, offset int) {
+func DrawElements(mode GLenum, count GLsizei, dtype GLenum, offset GLintptr) {
 	fnDrawElements.Invoke(mode, count, dtype, offset)
 }
 
-func Enable(cap int) {
+func Enable(cap GLenum) {
 	fnEnable.Invoke(cap)
 }
 
-func EnableVertexAttribArray(index int) {
+func EnableVertexAttribArray(index GLuint) {
 	fnEnableVertexAttribArray.Invoke(index)
 }
 
@@ -392,27 +404,31 @@ func Flush() {
 	fnFlush.Invoke()
 }
 
-func FramebufferTexture2D(target, attachment, texTarget int, texture Texture, level int) {
+func FramebufferTexture2D(target, attachment, texTarget GLenum, texture Texture, level GLint) {
 	fnFramebufferTexture2D.Invoke(target, attachment, texTarget, js.Value(texture), level)
 }
 
-func FrontFace(mode int) {
+func FrontFace(mode GLenum) {
 	fnFrontFace.Invoke(mode)
 }
 
-func GenerateMipmap(target int) {
+func GenerateMipmap(target GLenum) {
 	fnGenerateMipmap.Invoke(target)
 }
 
-func GetAttribLocation(program Program, name string) AttribLocation {
-	return AttribLocation(fnGetAttribLocation.Invoke(js.Value(program), name))
+func GetAttribLocation(program Program, name string) GLint {
+	return GLint(fnGetAttribLocation.Invoke(js.Value(program), name).Int())
 }
 
-func GetError() int {
-	return fnGetError.Invoke().Int()
+func GetParameter(name GLenum) Result {
+	return Result(fnGetParameter.Invoke(name))
 }
 
-func GetProgramParameter(program Program, pname int) Result {
+func GetError() GLenum {
+	return GLenum(fnGetError.Invoke().Int())
+}
+
+func GetProgramParameter(program Program, pname GLenum) Result {
 	return Result(fnGetProgramParameter.Invoke(js.Value(program), pname))
 }
 
@@ -420,7 +436,7 @@ func GetProgramInfoLog(program Program) string {
 	return fnGetProgramInfoLog.Invoke(js.Value(program)).String()
 }
 
-func GetShaderParameter(shader Shader, pname int) Result {
+func GetShaderParameter(shader Shader, pname GLenum) Result {
 	return Result(fnGetShaderParameter.Invoke(js.Value(shader), pname))
 }
 
@@ -432,7 +448,7 @@ func GetUniformLocation(program Program, name string) UniformLocation {
 	return UniformLocation(fnGetUniformLocation.Invoke(js.Value(program), name))
 }
 
-func LineWidth(width float32) {
+func LineWidth(width GLfloat) {
 	fnLineWidth.Invoke(width)
 }
 
@@ -440,7 +456,7 @@ func LinkProgram(program Program) {
 	fnLinkProgram.Invoke(js.Value(program))
 }
 
-func Scissor(x, y, width, height int) {
+func Scissor(x, y GLint, width, height GLsizei) {
 	fnScissor.Invoke(x, y, width, height)
 }
 
@@ -448,51 +464,51 @@ func ShaderSource(shader Shader, source string) {
 	fnShaderSource.Invoke(js.Value(shader), source)
 }
 
-func StencilFuncSeparate(face, fun, ref, mask int) {
+func StencilFuncSeparate(face, fun GLenum, ref GLint, mask GLuint) {
 	fnStencilFuncSeparate.Invoke(face, fun, ref, mask)
 }
 
-func StencilMaskSeparate(face, mask int) {
+func StencilMaskSeparate(face GLenum, mask GLuint) {
 	fnStencilMaskSeparate.Invoke(face, mask)
 }
 
-func StencilOpSeparate(face, fail, zfail, zpass int) {
+func StencilOpSeparate(face, fail, zfail, zpass GLenum) {
 	fnStencilOpSeparate.Invoke(face, fail, zfail, zpass)
 }
 
-func TexParameteri(target, pname, param int) {
+func TexParameteri(target, pname GLenum, param GLint) {
 	fnTexParameteri.Invoke(target, pname, param)
 }
 
-func Uniform1f(location UniformLocation, x float32) {
+func Uniform1f(location UniformLocation, x GLfloat) {
 	fnUniform1f.Invoke(js.Value(location), x)
 }
 
-func Uniform2f(location UniformLocation, x, y float32) {
+func Uniform2f(location UniformLocation, x, y GLfloat) {
 	fnUniform2f.Invoke(js.Value(location), x, y)
 }
 
-func Uniform3f(location UniformLocation, x, y, z float32) {
+func Uniform3f(location UniformLocation, x, y, z GLfloat) {
 	fnUniform3f.Invoke(js.Value(location), x, y, z)
 }
 
-func Uniform4f(location UniformLocation, x, y, z, w float32) {
+func Uniform4f(location UniformLocation, x, y, z, w GLfloat) {
 	fnUniform4f.Invoke(js.Value(location), x, y, z, w)
 }
 
-func Uniform1i(location UniformLocation, x int) {
+func Uniform1i(location UniformLocation, x GLint) {
 	fnUniform1i.Invoke(js.Value(location), x)
 }
 
-func Uniform2i(location UniformLocation, x, y int) {
+func Uniform2i(location UniformLocation, x, y GLint) {
 	fnUniform2i.Invoke(js.Value(location), x, y)
 }
 
-func Uniform3i(location UniformLocation, x, y, z int) {
+func Uniform3i(location UniformLocation, x, y, z GLint) {
 	fnUniform3i.Invoke(js.Value(location), x, y, z)
 }
 
-func Uniform4i(location UniformLocation, x, y, z, w int) {
+func Uniform4i(location UniformLocation, x, y, z, w GLint) {
 	fnUniform4i.Invoke(js.Value(location), x, y, z, w)
 }
 
@@ -500,15 +516,15 @@ func UseProgram(program Program) {
 	fnUseProgram.Invoke(js.Value(program))
 }
 
-func VertexAttribPointer(index, size, dtype int, normalized bool, stride, offset int) {
+func VertexAttribPointer(index GLuint, size GLint, dtype GLenum, normalized GLboolean, stride GLsizei, offset GLintptr) {
 	fnVertexAttribPointer.Invoke(index, size, dtype, normalized, stride, offset)
 }
 
-func Viewport(x, y, width, height int) {
+func Viewport(x, y GLint, width, height GLsizei) {
 	fnViewport.Invoke(x, y, width, height)
 }
 
-func BufferData(target, size int, data []byte, usage int) {
+func BufferData(target GLenum, size GLsizeiptr, data []byte, usage GLenum) {
 	if data != nil {
 		pushBufferData(data)
 		fnBufferData.Invoke(target, uint8Array, usage, 0, len(data))
@@ -517,21 +533,21 @@ func BufferData(target, size int, data []byte, usage int) {
 	}
 }
 
-func BufferSubData(target, dstOffset int, data []byte) {
+func BufferSubData(target GLenum, dstOffset GLintptr, data []byte) {
 	pushBufferData(data)
 	fnBufferSubData.Invoke(target, dstOffset, uint8Array, 0, len(data))
 }
 
-func ReadPixels(x, y, width, height, format, dtype, offset int) {
+func ReadPixels(x, y GLint, width, height GLsizei, format, dtype GLenum, offset GLintptr) {
 	fnReadPixels.Invoke(x, y, width, height, format, dtype, offset)
 }
 
-func TexImage2D(target, level, internalFormat, width, height, border, format, dtype int, data []byte) {
+func TexImage2D(target GLenum, level, internalFormat GLint, width, height GLsizei, border GLint, format, dtype GLenum, data []byte) {
 	pushBufferData(data)
 	fnTexImage2D.Invoke(target, level, internalFormat, width, height, border, format, dtype, uint8Array, 0)
 }
 
-func TexSubImage2D(target, level, xoffset, yoffset, width, height, format, dtype int, data []byte) {
+func TexSubImage2D(target GLenum, level, xoffset, yoffset GLint, width, height GLsizei, format, dtype GLenum, data []byte) {
 	pushBufferData(data)
 	switch dtype {
 	case UNSIGNED_BYTE:
@@ -545,71 +561,75 @@ func TexSubImage2D(target, level, xoffset, yoffset, width, height, format, dtype
 	}
 }
 
-func UniformMatrix4fv(location UniformLocation, transpose bool, data []float32) {
+func UniformMatrix4fv(location UniformLocation, transpose GLboolean, data []GLfloat) {
 	pushBufferData(data)
 	fnUniformMatrix4fv.Invoke(js.Value(location), transpose, float32Array, 0, len(data))
 }
 
-func GetBufferSubData[T DataTypes](target, srcOffset int, data []T) {
+func GetBufferSubData[T DataTypes](target GLenum, srcOffset GLintptr, data []T) {
 	length := byteSize(data)
 	ensureBufferSize(length)
 	fnGetBufferSubData.Invoke(target, 0, uint8Array, 0, length)
 	popBufferData(data)
 }
 
-func BlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter int) {
+func BlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1 GLint, mask GLbitfield, filter GLenum) {
 	fnBlitFramebuffer.Invoke(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter)
 }
 
-func InvalidateFramebuffer(target int, attachments []int) {
+func InvalidateFramebuffer(target GLenum, attachments []GLenum) {
 	ensureSliceSize(len(attachments))
 	view := pushSliceData(attachments, 0)
 	fnInvalidateFramebuffer.Invoke(target, view)
 }
 
-func TexStorage2D(target, levels, internalFormat, width, height int) {
+func TexStorage2D(target GLenum, levels GLsizei, internalFormat GLenum, width, height GLsizei) {
 	fnTexStorage2D.Invoke(target, levels, internalFormat, width, height)
 }
 
-func TexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, dtype int, data []byte) {
+func TexSubImage3D(target GLenum, level GLint, xoffset, yoffset, zoffset GLint, width, height, depth GLsizei, format, dtype GLenum, data []byte) {
 	pushBufferData(data)
 	fnTexSubImage3D.Invoke(target, level, xoffset, yoffset, zoffset, width, height, depth, format, dtype, uint8Array, 0)
 }
 
-func DrawArraysInstanced(mode, first, count, instanceCount int) {
+func VertexAttribIPointer(index GLuint, size GLint, dtype GLenum, stride GLsizei, offset GLintptr) {
+	fnVertexAttribIPointer.Invoke(index, size, dtype, stride, offset)
+}
+
+func DrawArraysInstanced(mode GLenum, first GLint, count, instanceCount GLsizei) {
 	fnDrawArraysInstanced.Invoke(mode, first, count, instanceCount)
 }
 
-func DrawElementsInstanced(mode, count, pType, offset, instanceCount int) {
+func DrawElementsInstanced(mode GLenum, count GLsizei, pType GLenum, offset GLintptr, instanceCount GLsizei) {
 	fnDrawElementsInstanced.Invoke(mode, count, pType, offset, instanceCount)
 }
 
-func DrawBuffers(buffers []int) {
+func DrawBuffers(buffers []GLenum) {
 	ensureSliceSize(len(buffers))
 	view := pushSliceData(buffers, 0)
 	fnDrawBuffers.Invoke(view)
 }
 
-func ClearBufferfv(buffer, drawBuffer int, values []float32) {
+func ClearBufferfv(buffer GLenum, drawBuffer GLint, values Float32List) {
 	pushBufferData(values)
 	fnClearBufferfv.Invoke(buffer, drawBuffer, float32Array)
 }
 
-func ClearBufferiv(buffer, drawBuffer int, values []int32) {
+func ClearBufferiv(buffer GLenum, drawBuffer GLint, values Int32List) {
 	pushBufferData(values)
 	fnClearBufferiv.Invoke(buffer, drawBuffer, int32Array)
 }
 
-func ClearBufferuiv(buffer, drawBuffer int, values []uint32) {
+func ClearBufferuiv(buffer GLenum, drawBuffer GLint, values Uint32List) {
 	pushBufferData(values)
 	fnClearBufferuiv.Invoke(buffer, drawBuffer, uint32Array)
 }
 
-func ClearBufferfi(buffer, drawBuffer int, depth float32, stencil int32) {
+func ClearBufferfi(buffer GLenum, drawBuffer GLint, depth GLfloat, stencil GLint) {
 	fnClearBufferfi.Invoke(buffer, drawBuffer, depth, stencil)
 }
 
-func FenceSync(condition, flags int) Sync {
+func FenceSync(condition GLenum, flags GLbitfield) Sync {
 	return Sync(fnFenceSync.Invoke(condition, flags))
 }
 
@@ -617,12 +637,28 @@ func DeleteSync(sync Sync) {
 	fnDeleteSync.Invoke(js.Value(sync))
 }
 
-func ClientWaitSync(sync Sync, flags, timeout int) int {
-	return fnClientWaitSync.Invoke(js.Value(sync), flags, timeout).Int()
+func ClientWaitSync(sync Sync, flags GLbitfield, timeout GLuint64) GLenum {
+	return GLenum(fnClientWaitSync.Invoke(js.Value(sync), flags, timeout).Int())
 }
 
-func GetSyncParameter(sync Sync, pname int) int {
-	return fnGetSyncParameter.Invoke(js.Value(sync), pname).Int()
+func GetSyncParameter(sync Sync, pname GLenum) Result {
+	return Result(fnGetSyncParameter.Invoke(js.Value(sync), pname))
+}
+
+func BindBufferBase(target GLenum, index GLuint, buffer Buffer) {
+	fnBindBufferBase.Invoke(target, index, js.Value(buffer))
+}
+
+func BindBufferRange(target GLenum, index GLuint, buffer Buffer, offset GLintptr, size GLsizeiptr) {
+	fnBindBufferRange.Invoke(target, index, js.Value(buffer), offset, size)
+}
+
+func GetUniformBlockIndex(program Program, name string) GLuint {
+	return GLuint(fnGetUniformBlockIndex.Invoke(js.Value(program), name).Int())
+}
+
+func UniformBlockBinding(program Program, index, binding GLuint) {
+	fnUniformBlockBinding.Invoke(js.Value(program), index, binding)
 }
 
 func CreateVertexArray() VertexArray {

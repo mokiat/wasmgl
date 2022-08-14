@@ -2,6 +2,10 @@
 
 package wasmgl
 
+// NOTE: The following constants do not have the GLenum type on purpose.
+// Certain constants need to be used as non-GLenum parameters (e.g.
+// when passing NEAREST / LINEAR / etc to TexParameteri).
+
 const (
 	// WebGL1 constants
 	// (https://www.khronos.org/registry/webgl/specs/latest/1.0/)
