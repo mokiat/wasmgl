@@ -122,6 +122,13 @@ var (
 	fnCreateVertexArray     js.Value
 	fnDeleteVertexArray     js.Value
 	fnBindVertexArray       js.Value
+	fnCreateSampler         js.Value
+	fnDeleteSampler         js.Value
+	fnIsSampler             js.Value
+	fnBindSampler           js.Value
+	fnSamplerParameteri     js.Value
+	fnSamplerParameterf     js.Value
+	fnGetSamplerParameter   js.Value
 )
 
 func initFunctions(gl js.Value) {
@@ -227,6 +234,13 @@ func initFunctions(gl js.Value) {
 	fnCreateVertexArray = getFunction(gl, "createVertexArray")
 	fnDeleteVertexArray = getFunction(gl, "deleteVertexArray")
 	fnBindVertexArray = getFunction(gl, "bindVertexArray")
+	fnCreateSampler = getFunction(gl, "createSampler")
+	fnDeleteSampler = getFunction(gl, "deleteSampler")
+	fnIsSampler = getFunction(gl, "isSampler")
+	fnBindSampler = getFunction(gl, "bindSampler")
+	fnSamplerParameteri = getFunction(gl, "samplerParameteri")
+	fnSamplerParameterf = getFunction(gl, "samplerParameterf")
+	fnGetSamplerParameter = getFunction(gl, "getSamplerParameter")
 }
 
 func DrawingBufferWidth() int {
@@ -420,24 +434,24 @@ func GetAttribLocation(program Program, name string) GLint {
 	return GLint(fnGetAttribLocation.Invoke(js.Value(program), name).Int())
 }
 
-func GetParameter(name GLenum) Result {
-	return Result(fnGetParameter.Invoke(name))
+func GetParameter(name GLenum) Any {
+	return Any(fnGetParameter.Invoke(name))
 }
 
 func GetError() GLenum {
 	return GLenum(fnGetError.Invoke().Int())
 }
 
-func GetProgramParameter(program Program, pname GLenum) Result {
-	return Result(fnGetProgramParameter.Invoke(js.Value(program), pname))
+func GetProgramParameter(program Program, pname GLenum) Any {
+	return Any(fnGetProgramParameter.Invoke(js.Value(program), pname))
 }
 
 func GetProgramInfoLog(program Program) string {
 	return fnGetProgramInfoLog.Invoke(js.Value(program)).String()
 }
 
-func GetShaderParameter(shader Shader, pname GLenum) Result {
-	return Result(fnGetShaderParameter.Invoke(js.Value(shader), pname))
+func GetShaderParameter(shader Shader, pname GLenum) Any {
+	return Any(fnGetShaderParameter.Invoke(js.Value(shader), pname))
 }
 
 func GetShaderInfoLog(shader Shader) string {
@@ -641,8 +655,8 @@ func ClientWaitSync(sync Sync, flags GLbitfield, timeout GLuint64) GLenum {
 	return GLenum(fnClientWaitSync.Invoke(js.Value(sync), flags, timeout).Int())
 }
 
-func GetSyncParameter(sync Sync, pname GLenum) Result {
-	return Result(fnGetSyncParameter.Invoke(js.Value(sync), pname))
+func GetSyncParameter(sync Sync, pname GLenum) Any {
+	return Any(fnGetSyncParameter.Invoke(js.Value(sync), pname))
 }
 
 func BindBufferBase(target GLenum, index GLuint, buffer Buffer) {
@@ -671,4 +685,32 @@ func DeleteVertexArray(array VertexArray) {
 
 func BindVertexArray(array VertexArray) {
 	fnBindVertexArray.Invoke(js.Value(array))
+}
+
+func CreateSampler() Sampler {
+	return Sampler(fnCreateSampler.Invoke())
+}
+
+func DeleteSampler(sampler Sampler) {
+	fnDeleteSampler.Invoke(js.Value(sampler))
+}
+
+func IsSampler(sampler Sampler) bool {
+	return fnIsSampler.Invoke(js.Value(sampler)).Bool()
+}
+
+func BindSampler(unit GLuint, sampler Sampler) {
+	fnBindSampler.Invoke(unit, js.Value(sampler))
+}
+
+func SamplerParameteri(sampler Sampler, pname GLenum, param GLint) {
+	fnSamplerParameteri.Invoke(js.Value(sampler), pname, param)
+}
+
+func SamplerParameterf(sampler Sampler, pname GLenum, param GLfloat) {
+	fnSamplerParameterf.Invoke(js.Value(sampler), pname, param)
+}
+
+func GetSamplerParameter(sampler Sampler, pname GLenum) Any {
+	return Any(fnGetSamplerParameter.Invoke(js.Value(sampler), pname))
 }

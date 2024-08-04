@@ -82,27 +82,32 @@ func (p Program) IsValid() bool {
 	return isSpecified(js.Value(p))
 }
 
-// Result represents an undefined return type. In the specification this is
-// indicated with the `any` keyword.
-type Result js.Value
+// Result is a legacy alias for Any.
+//
+// Deprecated: Use Any instead.
+type Result = Any
 
-// IsValid returns whether this Result is specified and can be used.
-func (r Result) IsValid() bool {
+// Any represents an undefined return type. In the specification this is
+// indicated with the `any` keyword.
+type Any js.Value
+
+// IsValid returns whether this Any is specified and can be used.
+func (r Any) IsValid() bool {
 	return isSpecified(js.Value(r))
 }
 
-// GLboolean returns the contents of this Result as a GLboolean type.
-func (r Result) GLboolean() GLboolean {
+// GLboolean returns the contents of this Any as a GLboolean type.
+func (r Any) GLboolean() GLboolean {
 	return js.Value(r).Bool()
 }
 
-// GLenum returns the contents of this Result as a GLenum type.
-func (r Result) GLenum() GLenum {
+// GLenum returns the contents of this Any as a GLenum type.
+func (r Any) GLenum() GLenum {
 	return GLenum(js.Value(r).Int())
 }
 
-// GLint returns the contents of this Result as a GLint type.
-func (r Result) GLint() GLint {
+// GLint returns the contents of this Any as a GLint type.
+func (r Any) GLint() GLint {
 	return GLint(js.Value(r).Int())
 }
 
@@ -140,6 +145,18 @@ type Texture js.Value
 // an unspecified Texture.
 func (t Texture) IsValid() bool {
 	return isSpecified(js.Value(t))
+}
+
+// NilSampler equals the zero Sampler.
+var NilSampler = Sampler(js.Null())
+
+// Sampler represents the WebGLSampler type from the specification.
+type Sampler js.Value
+
+// IsValid returns whether this Sampler is different from the zero Sampler or
+// an unspecified Sampler.
+func (s Sampler) IsValid() bool {
+	return isSpecified(js.Value(s))
 }
 
 // NilUniformLocation equals the nil UniformLocation.
