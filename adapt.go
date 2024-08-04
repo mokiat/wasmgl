@@ -21,7 +21,7 @@ var (
 	uint32Array  js.Value
 	float32Array js.Value
 
-	interfaceSlice []interface{}
+	interfaceSlice []any
 )
 
 // DataTypes represents allowed data slice types.
@@ -103,7 +103,7 @@ func byteSize[T DataTypes](data []T) int {
 func ensureSliceSize(size int) {
 	if size > len(interfaceSlice) {
 		oldSlice := interfaceSlice
-		interfaceSlice = make([]interface{}, size)
+		interfaceSlice = make([]any, size)
 		copy(interfaceSlice, oldSlice)
 	}
 }
@@ -114,7 +114,7 @@ func ensureSliceSize(size int) {
 //
 // The offset parameter allows one to get two or more views over the
 // global interfaceSlice if needed.
-func pushSliceData[T any](data []T, offset int) []interface{} {
+func pushSliceData[T any](data []T, offset int) []any {
 	ensureSliceSize(offset + len(data))
 	for i, v := range data {
 		interfaceSlice[i+offset] = v

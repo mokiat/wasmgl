@@ -237,14 +237,14 @@ func DrawingBufferHeight() int {
 	return context.Get("drawingBufferHeight").Int()
 }
 
-func GetExtension(name string) interface{} {
+func GetExtension(name string) any {
 	result := fnGetExtension.Invoke(name)
 	if result.IsNull() {
 		return nil
 	}
 	// We return plain true at this point in time but in the future it might
 	// be possible to return a specific extension struct here. This is why
-	// the result type has been left as interface{}.
+	// the result type has been left as any.
 	return true
 }
 
