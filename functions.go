@@ -100,6 +100,7 @@ var (
 	fnIsSampler                js.Value
 	fnLineWidth                js.Value
 	fnLinkProgram              js.Value
+	fnPolygonOffset            js.Value
 	fnReadPixels               js.Value
 	fnSamplerParameterf        js.Value
 	fnSamplerParameteri        js.Value
@@ -210,6 +211,7 @@ func initFunctions(gl js.Value) {
 	fnIsSampler = getFunction(gl, "isSampler")
 	fnLineWidth = getFunction(gl, "lineWidth")
 	fnLinkProgram = getFunction(gl, "linkProgram")
+	fnPolygonOffset = getFunction(gl, "polygonOffset")
 	fnReadPixels = getFunction(gl, "readPixels")
 	fnSamplerParameterf = getFunction(gl, "samplerParameterf")
 	fnSamplerParameteri = getFunction(gl, "samplerParameteri")
@@ -588,6 +590,10 @@ func LineWidth(width GLfloat) {
 
 func LinkProgram(program Program) {
 	fnLinkProgram.Invoke(js.Value(program))
+}
+
+func PolygonOffset(factor, units GLfloat) {
+	fnPolygonOffset.Invoke(factor, units)
 }
 
 func ReadPixels(x, y GLint, width, height GLsizei, format, dtype GLenum, offset GLintptr) {
