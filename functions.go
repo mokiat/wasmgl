@@ -80,6 +80,7 @@ var (
 	fnFinish                   js.Value
 	fnFlush                    js.Value
 	fnFramebufferTexture2D     js.Value
+	fnFramebufferTextureLayer  js.Value
 	fnFrontFace                js.Value
 	fnFenceSync                js.Value
 	fnGenerateMipmap           js.Value
@@ -111,6 +112,7 @@ var (
 	fnStencilOpSeparate        js.Value
 	fnTexImage2D               js.Value
 	fnTexStorage2D             js.Value
+	fnTexStorage3D             js.Value
 	fnTexSubImage2D            js.Value
 	fnTexSubImage3D            js.Value
 	fnTexParameteri            js.Value
@@ -191,6 +193,7 @@ func initFunctions(gl js.Value) {
 	fnFinish = getFunction(gl, "finish")
 	fnFlush = getFunction(gl, "flush")
 	fnFramebufferTexture2D = getFunction(gl, "framebufferTexture2D")
+	fnFramebufferTextureLayer = getFunction(gl, "framebufferTextureLayer")
 	fnFrontFace = getFunction(gl, "frontFace")
 	fnFenceSync = getFunction(gl, "fenceSync")
 	fnGenerateMipmap = getFunction(gl, "generateMipmap")
@@ -222,6 +225,7 @@ func initFunctions(gl js.Value) {
 	fnStencilOpSeparate = getFunction(gl, "stencilOpSeparate")
 	fnTexImage2D = getFunction(gl, "texImage2D")
 	fnTexStorage2D = getFunction(gl, "texStorage2D")
+	fnTexStorage3D = getFunction(gl, "texStorage3D")
 	fnTexSubImage2D = getFunction(gl, "texSubImage2D")
 	fnTexSubImage3D = getFunction(gl, "texSubImage3D")
 	fnTexParameteri = getFunction(gl, "texParameteri")
@@ -500,6 +504,10 @@ func FramebufferTexture2D(target, attachment, texTarget GLenum, texture Texture,
 	fnFramebufferTexture2D.Invoke(target, attachment, texTarget, js.Value(texture), level)
 }
 
+func FramebufferTextureLayer(target, attachment GLenum, texture Texture, level, layer GLint) {
+	fnFramebufferTextureLayer.Invoke(target, attachment, js.Value(texture), level, layer)
+}
+
 func FrontFace(mode GLenum) {
 	fnFrontFace.Invoke(mode)
 }
@@ -635,6 +643,10 @@ func TexImage2D(target GLenum, level, internalFormat GLint, width, height GLsize
 
 func TexStorage2D(target GLenum, levels GLsizei, internalFormat GLenum, width, height GLsizei) {
 	fnTexStorage2D.Invoke(target, levels, internalFormat, width, height)
+}
+
+func TexStorage3D(target GLenum, levels GLsizei, internalFormat GLenum, width, height, depth GLsizei) {
+	fnTexStorage3D.Invoke(target, levels, internalFormat, width, height, depth)
 }
 
 func TexSubImage2D(target GLenum, level, xoffset, yoffset GLint, width, height GLsizei, format, dtype GLenum, data []byte) {
