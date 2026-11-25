@@ -131,7 +131,7 @@ type Sync js.Value
 
 // IsValid returns whether this Sync is different from the zero Sync or an
 // unspecified Sync.
-func (s Sync) Valid() bool {
+func (s Sync) IsValid() bool {
 	return isSpecified(js.Value(s))
 }
 
