@@ -635,6 +635,11 @@ func StencilOpSeparate(face, fail, zfail, zpass GLenum) {
 }
 
 func TexImage2D(target GLenum, level, internalFormat GLint, width, height GLsizei, border GLint, format, dtype GLenum, data []byte) {
+	if data == nil {
+		// Allocate the texture storage without uploading any data.
+		fnTexImage2D.Invoke(target, level, internalFormat, width, height, border, format, dtype, nil)
+		return
+	}
 	pushBufferData(data)
 	fnTexImage2D.Invoke(target, level, internalFormat, width, height, border, format, dtype, uint8Array, 0)
 }
