@@ -117,5 +117,6 @@ func InitFromCanvas(htmlCanvas js.Value, opts ...ContextOption) error {
 		return fmt.Errorf("could not acquire webgl2 context")
 	}
 	initFunctions(context)
+	initBuffer()
 	return nil
 }

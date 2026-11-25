@@ -3,7 +3,9 @@
 package wasmgl
 
 import (
+	"fmt"
 	"runtime"
+	"slices"
 	"syscall/js"
 	"unsafe"
 )
@@ -15,7 +17,9 @@ var (
 
 	bufferSize   int
 	arrayBuffer  js.Value
+	int8Array    js.Value
 	uint8Array   js.Value
+	int16Array   js.Value
 	uint16Array  js.Value
 	int32Array   js.Value
 	uint32Array  js.Value
@@ -29,13 +33,32 @@ type DataTypes interface {
 	~int8 | ~uint8 | ~int16 | ~uint16 | ~int32 | ~uint32 | ~float32 | ~float64
 }
 
+// initialBufferSize is the size of the global ArrayBuffer when it is
+// first created. It is a multiple of 8 so that all TypedArray views can
+// be created over it.
+const initialBufferSize = 64 * 1024
+
+// initBuffer creates the global ArrayBuffer and its TypedArray views,
+// ensuring they are valid even for calls with empty data.
+func initBuffer() {
+	ensureBufferSize(initialBufferSize)
+}
+
 // ensureBufferSize ensures that the global ArrayBuffer has a size
 // that is equal or larger to the specified size.
+//
+// The buffer grows by at least a factor of two to avoid frequent
+// reallocations and its size is always rounded up to a multiple of 8,
+// since TypedArray views require the buffer length to be a multiple
+// of their element size.
 func ensureBufferSize(size int) {
 	if size > bufferSize {
-		bufferSize = size
-		arrayBuffer = js.Global().Get("ArrayBuffer").New(size)
+		newSize := max(size, 2*bufferSize)
+		bufferSize = (newSize + 7) &^ 7 // round up to multiple of 8
+		arrayBuffer = js.Global().Get("ArrayBuffer").New(bufferSize)
+		int8Array = js.Global().Get("Int8Array").New(arrayBuffer)
 		uint8Array = js.Global().Get("Uint8Array").New(arrayBuffer)
+		int16Array = js.Global().Get("Int16Array").New(arrayBuffer)
 		uint16Array = js.Global().Get("Uint16Array").New(arrayBuffer)
 		int32Array = js.Global().Get("Int32Array").New(arrayBuffer)
 		uint32Array = js.Global().Get("Uint32Array").New(arrayBuffer)
@@ -67,6 +90,32 @@ func popBufferData[T DataTypes](data []T) {
 	runtime.KeepAlive(data)
 }
 
+// pixelDataView returns the TypedArray view over the global ArrayBuffer
+// that WebGL2 requires for pixel data of the specified type.
+//
+// This function will panic if the type does not support pixel data
+// uploads.
+func pixelDataView(dtype GLenum) js.Value {
+	switch dtype {
+	case BYTE:
+		return int8Array
+	case UNSIGNED_BYTE:
+		return uint8Array
+	case SHORT:
+		return int16Array
+	case UNSIGNED_SHORT, HALF_FLOAT, UNSIGNED_SHORT_5_6_5, UNSIGNED_SHORT_4_4_4_4, UNSIGNED_SHORT_5_5_5_1:
+		return uint16Array
+	case INT:
+		return int32Array
+	case UNSIGNED_INT, UNSIGNED_INT_2_10_10_10_REV, UNSIGNED_INT_10F_11F_11F_REV, UNSIGNED_INT_5_9_9_9_REV, UNSIGNED_INT_24_8:
+		return uint32Array
+	case FLOAT:
+		return float32Array
+	default:
+		panic(fmt.Errorf("unsupported pixel data type: %d", dtype))
+	}
+}
+
 // getFunction retrieves the function with the specified name
 // from the specified target object. It returns a binding to that
 // function that has target set as the function's 'this'.
@@ -81,30 +130,22 @@ func getFunction(target js.Value, name string) js.Value {
 // https://github.com/golang/go/issues/32402
 // https://github.com/golang/go/issues/31980
 func asByteSlice[T DataTypes](data []T) []byte {
-	if len(data) == 0 {
-		return nil
-	}
-	dataSize := byteSize(data)
-	return unsafe.Slice((*byte)(unsafe.Pointer(&data[0])), dataSize)
+	return unsafe.Slice((*byte)(unsafe.Pointer(unsafe.SliceData(data))), byteSize(data))
 }
 
 // byteSize returns the number of bytes that would be
 // needed to represent data once it is converted to a
 // byte slice through asByteSlice.
 func byteSize[T DataTypes](data []T) int {
-	if len(data) == 0 {
-		return 0
-	}
-	return len(data) * int(unsafe.Sizeof(data[0]))
+	var zero T
+	return len(data) * int(unsafe.Sizeof(zero))
 }
 
 // ensureSliceSize ensures that the global interfaceSlice has
 // a size equal or larger than the specified size.
 func ensureSliceSize(size int) {
 	if size > len(interfaceSlice) {
-		oldSlice := interfaceSlice
-		interfaceSlice = make([]any, size)
-		copy(interfaceSlice, oldSlice)
+		interfaceSlice = slices.Grow(interfaceSlice, size-len(interfaceSlice))[:size]
 	}
 }
 

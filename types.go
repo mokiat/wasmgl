@@ -14,7 +14,7 @@ type (
 	// GLbyte represents the GLbyte type from the specification.
 	GLbyte = int8
 	// GLshort represents the GLshort type from the specification.
-	GLshort = uint16
+	GLshort = int16
 	// GLint represents the GLint type from the specification.
 	GLint = int32
 	// GLsizei represents the GLsizei type from the specification.
@@ -56,6 +56,20 @@ type Buffer js.Value
 // or an unspecified Buffer.
 func (b Buffer) IsValid() bool {
 	return isSpecified(js.Value(b))
+}
+
+// NilExtension equals the zero Extension.
+var NilExtension = Extension(js.Null())
+
+// Extension represents an extension object returned by getExtension from the
+// specification.
+type Extension js.Value
+
+// IsValid returns whether this Extension is different from the zero
+// Extension or an unspecified Extension, i.e. whether the extension is
+// supported and has been enabled.
+func (e Extension) IsValid() bool {
+	return isSpecified(js.Value(e))
 }
 
 // NilFramebuffer equals the zero Framebuffer.
@@ -131,7 +145,7 @@ type Sync js.Value
 
 // IsValid returns whether this Sync is different from the zero Sync or an
 // unspecified Sync.
-func (s Sync) Valid() bool {
+func (s Sync) IsValid() bool {
 	return isSpecified(js.Value(s))
 }
 

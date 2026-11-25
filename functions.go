@@ -2,10 +2,7 @@
 
 package wasmgl
 
-import (
-	"fmt"
-	"syscall/js"
-)
+import "syscall/js"
 
 var (
 	// WebGL1 functions:
@@ -463,7 +460,6 @@ func DrawArraysInstanced(mode GLenum, first GLint, count, instanceCount GLsizei)
 }
 
 func DrawBuffers(buffers []GLenum) {
-	ensureSliceSize(len(buffers))
 	view := pushSliceData(buffers, 0)
 	fnDrawBuffers.Invoke(view)
 }
@@ -527,7 +523,7 @@ func GetAttribLocation(program Program, name string) GLint {
 func GetBufferSubData[T DataTypes](target GLenum, srcOffset GLintptr, data []T) {
 	length := byteSize(data)
 	ensureBufferSize(length)
-	fnGetBufferSubData.Invoke(target, 0, uint8Array, 0, length)
+	fnGetBufferSubData.Invoke(target, srcOffset, uint8Array, 0, length)
 	popBufferData(data)
 }
 
@@ -535,15 +531,8 @@ func GetError() GLenum {
 	return GLenum(fnGetError.Invoke().Int())
 }
 
-func GetExtension(name string) any {
-	result := fnGetExtension.Invoke(name)
-	if result.IsNull() {
-		return nil
-	}
-	// We return plain true at this point in time but in the future it might
-	// be possible to return a specific extension struct here. This is why
-	// the result type has been left as any.
-	return true
+func GetExtension(name string) Extension {
+	return Extension(fnGetExtension.Invoke(name))
 }
 
 func GetParameter(name GLenum) Any {
@@ -583,7 +572,6 @@ func GetUniformLocation(program Program, name string) UniformLocation {
 }
 
 func InvalidateFramebuffer(target GLenum, attachments []GLenum) {
-	ensureSliceSize(len(attachments))
 	view := pushSliceData(attachments, 0)
 	fnInvalidateFramebuffer.Invoke(target, view)
 }
@@ -637,8 +625,13 @@ func StencilOpSeparate(face, fail, zfail, zpass GLenum) {
 }
 
 func TexImage2D(target GLenum, level, internalFormat GLint, width, height GLsizei, border GLint, format, dtype GLenum, data []byte) {
+	if data == nil {
+		// Allocate the texture storage without uploading any data.
+		fnTexImage2D.Invoke(target, level, internalFormat, width, height, border, format, dtype, nil)
+		return
+	}
 	pushBufferData(data)
-	fnTexImage2D.Invoke(target, level, internalFormat, width, height, border, format, dtype, uint8Array, 0)
+	fnTexImage2D.Invoke(target, level, internalFormat, width, height, border, format, dtype, pixelDataView(dtype), 0)
 }
 
 func TexStorage2D(target GLenum, levels GLsizei, internalFormat GLenum, width, height GLsizei) {
@@ -651,21 +644,12 @@ func TexStorage3D(target GLenum, levels GLsizei, internalFormat GLenum, width, h
 
 func TexSubImage2D(target GLenum, level, xoffset, yoffset GLint, width, height GLsizei, format, dtype GLenum, data []byte) {
 	pushBufferData(data)
-	switch dtype {
-	case UNSIGNED_BYTE:
-		fnTexSubImage2D.Invoke(target, level, xoffset, yoffset, width, height, format, dtype, uint8Array, 0)
-	case HALF_FLOAT:
-		fnTexSubImage2D.Invoke(target, level, xoffset, yoffset, width, height, format, dtype, uint16Array, 0)
-	case FLOAT:
-		fnTexSubImage2D.Invoke(target, level, xoffset, yoffset, width, height, format, dtype, float32Array, 0)
-	default:
-		panic(fmt.Errorf("unsupported dtype: %d", dtype))
-	}
+	fnTexSubImage2D.Invoke(target, level, xoffset, yoffset, width, height, format, dtype, pixelDataView(dtype), 0)
 }
 
 func TexSubImage3D(target GLenum, level GLint, xoffset, yoffset, zoffset GLint, width, height, depth GLsizei, format, dtype GLenum, data []byte) {
 	pushBufferData(data)
-	fnTexSubImage3D.Invoke(target, level, xoffset, yoffset, zoffset, width, height, depth, format, dtype, uint8Array, 0)
+	fnTexSubImage3D.Invoke(target, level, xoffset, yoffset, zoffset, width, height, depth, format, dtype, pixelDataView(dtype), 0)
 }
 
 func TexParameteri(target, pname GLenum, param GLint) {
