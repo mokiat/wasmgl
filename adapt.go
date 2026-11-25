@@ -30,12 +30,29 @@ type DataTypes interface {
 	~int8 | ~uint8 | ~int16 | ~uint16 | ~int32 | ~uint32 | ~float32 | ~float64
 }
 
+// initialBufferSize is the size of the global ArrayBuffer when it is
+// first created. It is a multiple of 8 so that all TypedArray views can
+// be created over it.
+const initialBufferSize = 64 * 1024
+
+// initBuffer creates the global ArrayBuffer and its TypedArray views,
+// ensuring they are valid even for calls with empty data.
+func initBuffer() {
+	ensureBufferSize(initialBufferSize)
+}
+
 // ensureBufferSize ensures that the global ArrayBuffer has a size
 // that is equal or larger to the specified size.
+//
+// The buffer grows by at least a factor of two to avoid frequent
+// reallocations and its size is always rounded up to a multiple of 8,
+// since TypedArray views require the buffer length to be a multiple
+// of their element size.
 func ensureBufferSize(size int) {
 	if size > bufferSize {
-		bufferSize = size
-		arrayBuffer = js.Global().Get("ArrayBuffer").New(size)
+		newSize := max(size, 2*bufferSize)
+		bufferSize = (newSize + 7) &^ 7 // round up to multiple of 8
+		arrayBuffer = js.Global().Get("ArrayBuffer").New(bufferSize)
 		uint8Array = js.Global().Get("Uint8Array").New(arrayBuffer)
 		uint16Array = js.Global().Get("Uint16Array").New(arrayBuffer)
 		int32Array = js.Global().Get("Int32Array").New(arrayBuffer)
