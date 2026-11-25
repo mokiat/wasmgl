@@ -14,7 +14,7 @@ type (
 	// GLbyte represents the GLbyte type from the specification.
 	GLbyte = int8
 	// GLshort represents the GLshort type from the specification.
-	GLshort = uint16
+	GLshort = int16
 	// GLint represents the GLint type from the specification.
 	GLint = int32
 	// GLsizei represents the GLsizei type from the specification.
