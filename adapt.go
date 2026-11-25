@@ -3,6 +3,7 @@
 package wasmgl
 
 import (
+	"fmt"
 	"runtime"
 	"slices"
 	"syscall/js"
@@ -16,7 +17,9 @@ var (
 
 	bufferSize   int
 	arrayBuffer  js.Value
+	int8Array    js.Value
 	uint8Array   js.Value
+	int16Array   js.Value
 	uint16Array  js.Value
 	int32Array   js.Value
 	uint32Array  js.Value
@@ -53,7 +56,9 @@ func ensureBufferSize(size int) {
 		newSize := max(size, 2*bufferSize)
 		bufferSize = (newSize + 7) &^ 7 // round up to multiple of 8
 		arrayBuffer = js.Global().Get("ArrayBuffer").New(bufferSize)
+		int8Array = js.Global().Get("Int8Array").New(arrayBuffer)
 		uint8Array = js.Global().Get("Uint8Array").New(arrayBuffer)
+		int16Array = js.Global().Get("Int16Array").New(arrayBuffer)
 		uint16Array = js.Global().Get("Uint16Array").New(arrayBuffer)
 		int32Array = js.Global().Get("Int32Array").New(arrayBuffer)
 		uint32Array = js.Global().Get("Uint32Array").New(arrayBuffer)
@@ -83,6 +88,32 @@ func popBufferData[T DataTypes](data []T) {
 	byteData := asByteSlice(data)
 	js.CopyBytesToGo(byteData, uint8Array)
 	runtime.KeepAlive(data)
+}
+
+// pixelDataView returns the TypedArray view over the global ArrayBuffer
+// that WebGL2 requires for pixel data of the specified type.
+//
+// This function will panic if the type does not support pixel data
+// uploads.
+func pixelDataView(dtype GLenum) js.Value {
+	switch dtype {
+	case BYTE:
+		return int8Array
+	case UNSIGNED_BYTE:
+		return uint8Array
+	case SHORT:
+		return int16Array
+	case UNSIGNED_SHORT, HALF_FLOAT, UNSIGNED_SHORT_5_6_5, UNSIGNED_SHORT_4_4_4_4, UNSIGNED_SHORT_5_5_5_1:
+		return uint16Array
+	case INT:
+		return int32Array
+	case UNSIGNED_INT, UNSIGNED_INT_2_10_10_10_REV, UNSIGNED_INT_10F_11F_11F_REV, UNSIGNED_INT_5_9_9_9_REV, UNSIGNED_INT_24_8:
+		return uint32Array
+	case FLOAT:
+		return float32Array
+	default:
+		panic(fmt.Errorf("unsupported pixel data type: %d", dtype))
+	}
 }
 
 // getFunction retrieves the function with the specified name
