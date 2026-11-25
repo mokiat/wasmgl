@@ -526,7 +526,7 @@ func GetAttribLocation(program Program, name string) GLint {
 func GetBufferSubData[T DataTypes](target GLenum, srcOffset GLintptr, data []T) {
 	length := byteSize(data)
 	ensureBufferSize(length)
-	fnGetBufferSubData.Invoke(target, 0, uint8Array, 0, length)
+	fnGetBufferSubData.Invoke(target, srcOffset, uint8Array, 0, length)
 	popBufferData(data)
 }
 
