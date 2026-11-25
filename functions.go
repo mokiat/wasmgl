@@ -534,15 +534,8 @@ func GetError() GLenum {
 	return GLenum(fnGetError.Invoke().Int())
 }
 
-func GetExtension(name string) any {
-	result := fnGetExtension.Invoke(name)
-	if result.IsNull() {
-		return nil
-	}
-	// We return plain true at this point in time but in the future it might
-	// be possible to return a specific extension struct here. This is why
-	// the result type has been left as any.
-	return true
+func GetExtension(name string) Extension {
+	return Extension(fnGetExtension.Invoke(name))
 }
 
 func GetParameter(name GLenum) Any {

@@ -58,6 +58,20 @@ func (b Buffer) IsValid() bool {
 	return isSpecified(js.Value(b))
 }
 
+// NilExtension equals the zero Extension.
+var NilExtension = Extension(js.Null())
+
+// Extension represents an extension object returned by getExtension from the
+// specification.
+type Extension js.Value
+
+// IsValid returns whether this Extension is different from the zero
+// Extension or an unspecified Extension, i.e. whether the extension is
+// supported and has been enabled.
+func (e Extension) IsValid() bool {
+	return isSpecified(js.Value(e))
+}
+
 // NilFramebuffer equals the zero Framebuffer.
 var NilFramebuffer = Framebuffer(js.Null())
 
