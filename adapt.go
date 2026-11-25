@@ -4,6 +4,7 @@ package wasmgl
 
 import (
 	"runtime"
+	"slices"
 	"syscall/js"
 	"unsafe"
 )
@@ -81,30 +82,22 @@ func getFunction(target js.Value, name string) js.Value {
 // https://github.com/golang/go/issues/32402
 // https://github.com/golang/go/issues/31980
 func asByteSlice[T DataTypes](data []T) []byte {
-	if len(data) == 0 {
-		return nil
-	}
-	dataSize := byteSize(data)
-	return unsafe.Slice((*byte)(unsafe.Pointer(&data[0])), dataSize)
+	return unsafe.Slice((*byte)(unsafe.Pointer(unsafe.SliceData(data))), byteSize(data))
 }
 
 // byteSize returns the number of bytes that would be
 // needed to represent data once it is converted to a
 // byte slice through asByteSlice.
 func byteSize[T DataTypes](data []T) int {
-	if len(data) == 0 {
-		return 0
-	}
-	return len(data) * int(unsafe.Sizeof(data[0]))
+	var zero T
+	return len(data) * int(unsafe.Sizeof(zero))
 }
 
 // ensureSliceSize ensures that the global interfaceSlice has
 // a size equal or larger than the specified size.
 func ensureSliceSize(size int) {
 	if size > len(interfaceSlice) {
-		oldSlice := interfaceSlice
-		interfaceSlice = make([]any, size)
-		copy(interfaceSlice, oldSlice)
+		interfaceSlice = slices.Grow(interfaceSlice, size-len(interfaceSlice))[:size]
 	}
 }
 

@@ -463,7 +463,6 @@ func DrawArraysInstanced(mode GLenum, first GLint, count, instanceCount GLsizei)
 }
 
 func DrawBuffers(buffers []GLenum) {
-	ensureSliceSize(len(buffers))
 	view := pushSliceData(buffers, 0)
 	fnDrawBuffers.Invoke(view)
 }
@@ -583,7 +582,6 @@ func GetUniformLocation(program Program, name string) UniformLocation {
 }
 
 func InvalidateFramebuffer(target GLenum, attachments []GLenum) {
-	ensureSliceSize(len(attachments))
 	view := pushSliceData(attachments, 0)
 	fnInvalidateFramebuffer.Invoke(target, view)
 }
